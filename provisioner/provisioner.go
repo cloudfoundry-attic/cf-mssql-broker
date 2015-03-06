@@ -16,7 +16,7 @@ func buildConnectionString(connectionParams map[string]string) string {
 	var res string = ""
 	for k, v := range connectionParams {
 		res += k + "=" + v + ";"
-	}
+	}l
 	return res
 }
 
@@ -52,7 +52,7 @@ func (provisioner *MssqlProvisioner) CreateBinding(dbId, userId, password string
 		return err
 	}
 
-	tx.Exec("use [" + dbId + "]; create user [" + userId + "] with password='" + password + "' ")
+	tx.Exec("use [" + dbId + "]; create user [" + userId + "] with password='" + password + "' ") 
 
 	tx.Exec("use [" + dbId + "]; alter role  [db_owner] add member [" + dbId + "] ")
 
@@ -67,7 +67,14 @@ func (provisioner *MssqlProvisioner) CreateBinding(dbId, userId, password string
 	return nil
 }
 
-func (provisioner *MssqlProvisioner) DelteBinding(dbId, userId string) error {
+func (provisioner *MssqlProvisioner) DeleteBinding(dbId, userId string) error {
 	_, err := provisioner.dbClient.Exec("use [" + dbId + "]; drop user " + userId)
+	return err
+}
+
+func (provisioner *MssqlProvisioner) Deprovision(dbId string) error {
+
+	_, _ := provisioner.dbClient.Exec("ALTER DATABASE [" + dbId + "] SET OFFLINE WITH ROLLBACK IMMEDIATE")
+	_, err := provisioner.dbClient.Exec("drop database [" + dbId + "]")
 	return err
 }
