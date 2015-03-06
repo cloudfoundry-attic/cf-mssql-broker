@@ -32,32 +32,41 @@ func (provisioner *MssqlProvisioner) Init() error {
 	var err error = nil
 	connString := buildConnectionString(provisioner.connectionParams)
 	provisioner.dbClient, err = sql.Open("odbc", connString)
+	provisioner.dbClient.SetMaxOpenConns(1)
+
 	return err
 }
 
 func (provisioner *MssqlProvisioner) CreateDatabase(id string) error {
-	_, err := provisioner.dbClient.Exec("create database " + id + " containment = partial")
+	sqlquery := "use master; create database [" + id + "] containment = partial"
+	provisioner.logger.Debug("mssql-query-create-database", lager.Data{"query": sqlquery})
+	_, err := provisioner.dbClient.Exec(sqlquery)
+
 	return err
 }
 
 func (provisioner *MssqlProvisioner) DeleteDatabase(id string) error {
 	// _, err := provisioner.dbClient.Exec("drop database " + id)
-	_, err := provisioner.dbClient.Exec("alter database [" + id + "] set single_user with rollback immediate; drop database " + id)
+	sqlquery := "use master; alter database [" + id + "] set single_user with rollback immediate; drop database [" + id + "]"
+	provisioner.logger.Debug("mssql-query-delete-database", lager.Data{"query": sqlquery})
+	_, err := provisioner.dbClient.Exec(sqlquery)
+
 	return err
 }
 
-func (provisioner *MssqlProvisioner) CreateBinding(dbId, userId, password string) error {
+func (provisioner *MssqlProvisioner) CreateUser(dbId, userId, password string) error {
 	tx, err := provisioner.dbClient.Begin()
 	if err != nil {
 		return err
 	}
 
-	tx.Exec("use [" + dbId + "]; create user [" + userId + "] with password='" + password + "' ")
+	sqlquery := "use [" + dbId + "]; create user [" + userId + "] with password='" + password + "' ; use master "
+	provisioner.logger.Debug("mssql-query-create-user", lager.Data{"query": sqlquery})
+	tx.Exec(sqlquery)
 
-	tx.Exec("use [" + dbId + "]; alter role  [db_owner] add member [" + dbId + "] ")
-
-	// alt for making a user db_owner
-	// tx.Exec("use [" + dbId + "]; exec sp_addrolemember N'db_owner', N'" + dbId + "' ")
+	sqlquery = "use [" + dbId + "]; alter role  [db_owner] add member [" + dbId + "] ; use master "
+	provisioner.logger.Debug("mssql-query-create-user", lager.Data{"query": sqlquery})
+	tx.Exec(sqlquery)
 
 	err = tx.Commit()
 	if err != nil {
@@ -67,7 +76,10 @@ func (provisioner *MssqlProvisioner) CreateBinding(dbId, userId, password string
 	return nil
 }
 
-func (provisioner *MssqlProvisioner) DelteBinding(dbId, userId string) error {
-	_, err := provisioner.dbClient.Exec("use [" + dbId + "]; drop user " + userId)
+func (provisioner *MssqlProvisioner) DelteUser(dbId, userId string) error {
+	sqlquery := "use [" + dbId + "]; drop user [" + userId + "] ; use master "
+	provisioner.logger.Debug("mssql-query-delete-user", lager.Data{"query": sqlquery})
+	_, err := provisioner.dbClient.Exec(sqlquery)
+
 	return err
 }

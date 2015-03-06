@@ -45,6 +45,7 @@ func (*mssqlServiceBroker) Services() []brokerapi.Service {
 			Name:        "hp-mssql-dev",
 			Description: "Microsoft SQL Server service for application development and testing",
 			Bindable:    true,
+			Tags:        []string{"mssql", "relational"},
 			Plans: []brokerapi.ServicePlan{
 				brokerapi.ServicePlan{
 					ID:          "fb740fd7-2029-467a-9256-63ecd882f11c",
@@ -88,7 +89,7 @@ func (*mssqlServiceBroker) Bind(instanceID, bindingID string) (interface{}, erro
 	username := instanceID + "-" + bindingID
 	password := randomString(32) + "qwerASF1234!@#$"
 
-	err := mssqlProv.CreateBinding(instanceID, username, password)
+	err := mssqlProv.CreateUser(instanceID, username, password)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +107,7 @@ func (*mssqlServiceBroker) Unbind(instanceID, bindingID string) error {
 	logger.Debug("unbind-called", lager.Data{"instanceId": instanceID, "bindingId": bindingID})
 
 	username := instanceID + "-" + bindingID
-	err := mssqlProv.DelteBinding(instanceID, username)
+	err := mssqlProv.DelteUser(instanceID, username)
 	return err
 }
 
@@ -127,7 +128,7 @@ func main() {
 		"database": "master",
 	}
 
-	msuser := "sa"
+	msuser := ""
 	mspass := "password1234!"
 	if runtime.GOOS != "windows" {
 		pars["driver"] = "freetds"
