@@ -76,10 +76,22 @@ func (provisioner *MssqlProvisioner) CreateUser(dbId, userId, password string) e
 	return nil
 }
 
-func (provisioner *MssqlProvisioner) DelteUser(dbId, userId string) error {
+func (provisioner *MssqlProvisioner) DeleteUser(dbId, userId string) error {
 	sqlquery := "use [" + dbId + "]; drop user [" + userId + "] ; use master "
 	provisioner.logger.Debug("mssql-query-delete-user", lager.Data{"query": sqlquery})
 	_, err := provisioner.dbClient.Exec(sqlquery)
 
 	return err
+}
+
+func (provisioner *MssqlProvisioner) DeleteBinding(dbId, userId string) error {
+        _, err := provisioner.dbClient.Exec("use [" + dbId + "]; drop user " + userId)
+        return err
+}
+
+func (provisioner *MssqlProvisioner) Deprovision(dbId string) error {
+
+        _, _ := provisioner.dbClient.Exec("ALTER DATABASE [" + dbId + "] SET OFFLINE WITH ROLLBACK IMMEDIATE")
+        _, err := provisioner.dbClient.Exec("drop database [" + dbId + "]")
+        return err
 }
