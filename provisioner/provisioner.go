@@ -38,20 +38,71 @@ func (provisioner *MssqlProvisioner) Init() error {
 }
 
 func (provisioner *MssqlProvisioner) CreateDatabase(id string) error {
-	sqlquery := "use master; create database [" + id + "] containment = partial"
-	provisioner.logger.Debug("mssql-query-create-database", lager.Data{"query": sqlquery})
-	_, err := provisioner.dbClient.Exec(sqlquery)
+	tx, err := provisioner.dbClient.Begin()
+	if err != nil {
+		return err
+	}
 
-	return err
+	sqlquery := "use master"
+	provisioner.logger.Debug("mssql-query-create-database", lager.Data{"query": sqlquery})
+	_, err = tx.Exec(sqlquery)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	sqlquery = "create database [" + id + "] containment = partial"
+	provisioner.logger.Debug("mssql-query-create-database", lager.Data{"query": sqlquery})
+	_, err = tx.Exec(sqlquery)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (provisioner *MssqlProvisioner) DeleteDatabase(id string) error {
-	// _, err := provisioner.dbClient.Exec("drop database " + id)
-	sqlquery := "use master; alter database [" + id + "] set single_user with rollback immediate; drop database [" + id + "]"
-	provisioner.logger.Debug("mssql-query-delete-database", lager.Data{"query": sqlquery})
-	_, err := provisioner.dbClient.Exec(sqlquery)
+	tx, err := provisioner.dbClient.Begin()
+	if err != nil {
+		return err
+	}
 
-	return err
+	sqlquery := "use master"
+	provisioner.logger.Debug("mssql-query-delete-database", lager.Data{"query": sqlquery})
+	_, err = tx.Exec(sqlquery)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	sqlquery = "alter database [" + id + "] set single_user with rollback immediate"
+	provisioner.logger.Debug("mssql-query-delete-database", lager.Data{"query": sqlquery})
+	_, err = tx.Exec(sqlquery)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	sqlquery = "drop database [" + id + "]"
+	provisioner.logger.Debug("mssql-query-delete-database", lager.Data{"query": sqlquery})
+	_, err = tx.Exec(sqlquery)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (provisioner *MssqlProvisioner) CreateUser(dbId, userId, password string) error {
@@ -60,13 +111,29 @@ func (provisioner *MssqlProvisioner) CreateUser(dbId, userId, password string) e
 		return err
 	}
 
-	sqlquery := "use [" + dbId + "]; create user [" + userId + "] with password='" + password + "' ; use master "
+	sqlquery := "use [" + dbId + "]"
 	provisioner.logger.Debug("mssql-query-create-user", lager.Data{"query": sqlquery})
-	tx.Exec(sqlquery)
+	_, err = tx.Exec(sqlquery)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
-	sqlquery = "use [" + dbId + "]; alter role  [db_owner] add member [" + dbId + "] ; use master "
+	sqlquery = "create user [" + userId + "] with password='" + password + "'"
 	provisioner.logger.Debug("mssql-query-create-user", lager.Data{"query": sqlquery})
-	tx.Exec(sqlquery)
+	_, err = tx.Exec(sqlquery)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	sqlquery = "alter role  [db_owner] add member [" + userId + "]"
+	provisioner.logger.Debug("mssql-query-create-user", lager.Data{"query": sqlquery})
+	_, err = tx.Exec(sqlquery)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
 	err = tx.Commit()
 	if err != nil {
@@ -77,9 +144,31 @@ func (provisioner *MssqlProvisioner) CreateUser(dbId, userId, password string) e
 }
 
 func (provisioner *MssqlProvisioner) DeleteUser(dbId, userId string) error {
-	sqlquery := "use [" + dbId + "]; drop user [" + userId + "] ; use master "
-	provisioner.logger.Debug("mssql-query-delete-user", lager.Data{"query": sqlquery})
-	_, err := provisioner.dbClient.Exec(sqlquery)
+	tx, err := provisioner.dbClient.Begin()
+	if err != nil {
+		return err
+	}
 
-	return err
+	sqlquery := "use [" + dbId + "]"
+	provisioner.logger.Debug("mssql-query-delete-user", lager.Data{"query": sqlquery})
+	_, err = tx.Exec(sqlquery)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	sqlquery = "drop user [" + userId + "]"
+	provisioner.logger.Debug("mssql-query-delete-user", lager.Data{"query": sqlquery})
+	_, err = tx.Exec(sqlquery)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
