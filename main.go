@@ -1,9 +1,11 @@
 package main
 
 import (
+	"cf-mssql-broker/config"
 	"cf-mssql-broker/provisioner"
 	"crypto/rand"
 	"encoding/base64"
+	"flag"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/pivotal-golang/lager"
 	"net/http"
@@ -14,8 +16,9 @@ import (
 type mssqlServiceBroker struct{}
 
 type MssqlCredentials struct {
-	Host     string `json:"host"`
+	Hostname string `json:"hostname"`
 	Port     int    `json:"port"`
+	Name     string `json:"name"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
@@ -31,6 +34,9 @@ func randomString(size int) string {
 	return base64.URLEncoding.EncodeToString(rb)
 }
 
+var configFile = flag.String("config", "", "Location of the Mssql Service Broker config json file")
+var brokerConfig *config.Config
+
 var logger = lager.NewLogger("mssql-service-broker")
 var mssqlProv *provisioner.MssqlProvisioner
 var pars map[string]string
@@ -39,34 +45,15 @@ func (*mssqlServiceBroker) Services() []brokerapi.Service {
 	// Return a []brokerapi.Service here, describing your service(s) and plan(s)
 	logger.Debug("catalog-called")
 
-	return []brokerapi.Service{
-		brokerapi.Service{
-			ID:          "b6844738-382b-4a9e-9f80-2ff5049d512f",
-			Name:        "hp-mssql-dev",
-			Description: "Microsoft SQL Server service for application development and testing",
-			Bindable:    true,
-			Tags:        []string{"mssql", "relational"},
-			Plans: []brokerapi.ServicePlan{
-				brokerapi.ServicePlan{
-					ID:          "fb740fd7-2029-467a-9256-63ecd882f11c",
-					Name:        "100m-dev",
-					Description: "Shared SQL Server",
-					Metadata: brokerapi.ServicePlanMetadata{
-						Bullets:     []string{},
-						DisplayName: "Mssql",
-					},
-				},
-			},
-		},
-	}
-
+	return brokerConfig.ServiceCatalog
 }
 
 func (*mssqlServiceBroker) Provision(instanceID string, serviceDetails brokerapi.ServiceDetails) error {
 	// Provision a new instance here
 	logger.Debug("provision-called", lager.Data{"instanceId": instanceID, "serviceDetails": serviceDetails})
 
-	err := mssqlProv.CreateDatabase(instanceID)
+	databaseName := brokerConfig.DbIdentifierPrefix + instanceID
+	err := mssqlProv.CreateDatabase(databaseName)
 
 	return err
 }
@@ -75,7 +62,8 @@ func (*mssqlServiceBroker) Deprovision(instanceID string) error {
 	// Deprovision instances here
 	logger.Debug("deprovision-called", lager.Data{"instanceId": instanceID})
 
-	err := mssqlProv.DeleteDatabase(instanceID)
+	databaseName := brokerConfig.DbIdentifierPrefix + instanceID
+	err := mssqlProv.DeleteDatabase(databaseName)
 
 	return err
 }
@@ -86,17 +74,19 @@ func (*mssqlServiceBroker) Bind(instanceID, bindingID string) (interface{}, erro
 
 	logger.Debug("bind-called", lager.Data{"instanceId": instanceID, "bindingId": bindingID})
 
-	username := instanceID + "-" + bindingID
+	databaseName := brokerConfig.DbIdentifierPrefix + instanceID
+	username := databaseName + "-" + bindingID
 	password := randomString(32) + "qwerASF1234!@#$"
 
-	err := mssqlProv.CreateUser(instanceID, username, password)
+	err := mssqlProv.CreateUser(databaseName, username, password)
 	if err != nil {
 		return nil, err
 	}
 
 	return MssqlCredentials{
-		Host:     pars["server"],
-		Port:     1433,
+		Hostname: brokerConfig.ServedBindingHostname,
+		Port:     brokerConfig.ServedBindingPort,
+		Name:     databaseName,
 		Username: username,
 		Password: password,
 	}, nil
@@ -106,62 +96,60 @@ func (*mssqlServiceBroker) Unbind(instanceID, bindingID string) error {
 	// Unbind from instances here
 	logger.Debug("unbind-called", lager.Data{"instanceId": instanceID, "bindingId": bindingID})
 
-	username := instanceID + "-" + bindingID
-	err := mssqlProv.DelteUser(instanceID, username)
+	databaseName := brokerConfig.DbIdentifierPrefix + instanceID
+	username := databaseName + "-" + bindingID
+	err := mssqlProv.DeleteUser(databaseName, username)
 	return err
 }
 
-func geListeningPort() string {
-	res := os.Getenv("PORT") // CF and Heroku will set this env var
-	if res == "" {
-		res = "3000"
-
+func getListeningAddr(config *config.Config) string {
+	// CF and Heroku will set this env var for their hosted apps
+	envPort := os.Getenv("PORT")
+	if envPort == "" {
+		if len(config.ListeningAddr) == 0 {
+			return ":3000"
+		}
+		return config.ListeningAddr
 	}
-	return res
+
+	return ":" + envPort
 }
 
 func main() {
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
 
-	pars = map[string]string{
-		"server":   "localhost\\sqlexpress",
-		"database": "master",
+	flag.Parse()
+	var err error
+	brokerConfig, err = config.LoadFromFile(*configFile)
+	if err != nil {
+		logger.Fatal("config-load-error", err)
 	}
 
-	msuser := ""
-	mspass := "password1234!"
-	if runtime.GOOS != "windows" {
-		pars["driver"] = "freetds"
-		pars["uid"] = msuser
-		pars["pwd"] = mspass
-		pars["port"] = "1433"
-	} else {
-		pars["driver"] = "sql server"
-		if len(msuser) == 0 {
-			pars["trusted_connection"] = "yes"
+	logger.Debug("config-file", lager.Data{"config": brokerConfig})
+
+	mssqlPars := brokerConfig.MssqlOdbcConnection
+
+	// set default sql driver if it is not set based on the OS
+	if _, ok := mssqlPars["driver"]; !ok {
+		if runtime.GOOS != "windows" {
+			pars["driver"] = "freetds"
 		} else {
-			pars["uid"] = msuser
-			pars["pwd"] = mspass
+			pars["driver"] = "sql server"
 		}
 	}
 
-	mssqlProv = provisioner.NewMssqlProvisioner(logger, pars)
+	mssqlProv = provisioner.NewMssqlProvisioner(logger, mssqlPars)
 	mssqlProv.Init()
 
 	serviceBroker := &mssqlServiceBroker{}
 
-	credentials := brokerapi.BrokerCredentials{
-		Username: "username",
-		Password: "password",
-	}
-
-	brokerAPI := brokerapi.New(serviceBroker, logger, credentials)
+	brokerAPI := brokerapi.New(serviceBroker, logger, brokerConfig.Crednetials)
 	http.Handle("/", brokerAPI)
 
-	addr := ":" + geListeningPort()
+	addr := getListeningAddr(brokerConfig)
 	logger.Debug("start-listening", lager.Data{"addr": addr})
 
-	err := http.ListenAndServe(addr, nil)
+	err = http.ListenAndServe(addr, nil)
 	if err != nil {
 		logger.Error("error-listenting", err)
 	}

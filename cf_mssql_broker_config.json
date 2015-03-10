@@ -1,0 +1,40 @@
+{
+	"dbIdentifierPrefix": "cf-",
+	"listeningAddr": ":3000",
+	"brokerCredentials": {
+		"username": "username",
+		"password": "password"
+	},
+	
+	"serviceCatalog": [
+	    {
+	        "bindable": true,
+	        "description": "Microsoft SQL Server service for application development and testing",
+	        "id": "b6844738-382b-4a9e-9f80-2ff5049d512f",
+	        "name": "mssql-dev",
+	        "plans": [
+	            {
+	                "description": "Shared SQL Server",
+	                "id": "fb740fd7-2029-467a-9256-63ecd882f11c",
+	                "name": "default",
+	                "metadata": {
+	                    "bullets": [],
+	                    "displayName": "Mssql"
+	                }
+	            }
+	        ],
+	        "tags": ["mssql", "relational"]
+	    }
+	],
+	
+	"mssqlOdbcConnection": {
+		"server":   "localhost\\sqlexpress",
+		"port": 	"1433",
+		"database": "master",
+		"driver": 	"sql server",
+		"trusted_connection": "yes"
+	},
+
+	"servedBindingHostname" : "192.168.1.10",
+	"servedBindingPort" : 1433
+}
