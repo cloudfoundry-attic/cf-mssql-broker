@@ -1,9 +1,9 @@
 package main
 
 import (
-	"cf-mssql-broker/config"
-	"cf-mssql-broker/provisioner"
 	"flag"
+	"github.com/hpcloud/cf-mssql-broker/config"
+	"github.com/hpcloud/cf-mssql-broker/provisioner"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/pivotal-golang/lager"
 	"net/http"
