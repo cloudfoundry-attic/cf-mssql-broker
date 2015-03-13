@@ -13,9 +13,10 @@ type Config struct {
 	ListeningAddr         string                      `json:"listeningAddr"`
 	Crednetials           brokerapi.BrokerCredentials `json:"brokerCredentials"`
 	ServiceCatalog        []brokerapi.Service         `json:"serviceCatalog"`
-	MssqlOdbcConnection   map[string]string           `json:"mssqlOdbcConnection"`
-	ServedBindingHostname string                      `json:"servedBindingHostname"`
-	ServedBindingPort     int                         `json:"servedBindingPort"`
+	BrokerGoSqlDriver     string                      `json:"brokerGoSqlDriver"`
+	BrokerMssqlConnection map[string]string           `json:"brokerMssqlConnection"`
+	ServedBindingHostname string                      `json:"servedMssqlBindingHostname"`
+	ServedBindingPort     int                         `json:"servedMssqlBindingPort"`
 }
 
 func LoadFromFile(path string) (*Config, error) {

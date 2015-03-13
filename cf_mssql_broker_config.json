@@ -27,14 +27,14 @@
 	    }
 	],
 	
-	"mssqlOdbcConnection": {
+	"brokerGoSqlDriver": "odbc",
+	"brokerMssqlConnection": {
 		"server":   "localhost\\sqlexpress",
-		"port": 	"1433",
 		"database": "master",
 		"driver": 	"sql server",
 		"trusted_connection": "yes"
 	},
 
-	"servedBindingHostname" : "192.168.1.10",
-	"servedBindingPort" : 1433
+	"servedMssqlBindingHostname" : "192.168.1.10",
+	"servedMssqlBindingPort" : 1433
 }

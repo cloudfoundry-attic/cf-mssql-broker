@@ -4,6 +4,7 @@ import (
 	_ "code.google.com/p/odbc"
 	"database/sql"
 	"fmt"
+	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/pivotal-golang/lager"
 	"strings"
 )
@@ -39,6 +40,7 @@ var deleteUserTemplate = []string{
 
 type MssqlProvisioner struct {
 	dbClient         *sql.DB
+	goSqlDriver      string
 	connectionParams map[string]string
 	logger           lager.Logger
 }
@@ -51,9 +53,10 @@ func buildConnectionString(connectionParams map[string]string) string {
 	return res
 }
 
-func NewMssqlProvisioner(logger lager.Logger, connectionParams map[string]string) *MssqlProvisioner {
+func NewMssqlProvisioner(logger lager.Logger, goSqlDriver string, connectionParams map[string]string) *MssqlProvisioner {
 	return &MssqlProvisioner{
 		dbClient:         nil,
+		goSqlDriver:      goSqlDriver,
 		connectionParams: connectionParams,
 		logger:           logger,
 	}
@@ -62,42 +65,43 @@ func NewMssqlProvisioner(logger lager.Logger, connectionParams map[string]string
 func (provisioner *MssqlProvisioner) Init() error {
 	var err error = nil
 	connString := buildConnectionString(provisioner.connectionParams)
-	provisioner.dbClient, err = sql.Open("odbc", connString)
+	provisioner.dbClient, err = sql.Open(provisioner.goSqlDriver, connString)
+	if err != nil {
+		return err
+	}
 
-	return err
+	err = provisioner.dbClient.Ping()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (provisioner *MssqlProvisioner) CreateDatabase(databaseId string) error {
-	return provisioner.executeTemplate(createDatabaseTemplate, databaseId)
+	return provisioner.executeTemplateWithoutTx(createDatabaseTemplate, databaseId)
 }
 
 func (provisioner *MssqlProvisioner) DeleteDatabase(databaseId string) error {
-	return provisioner.executeTemplate(deleteDatabaseTemplate, databaseId)
+	return provisioner.executeTemplateWithoutTx(deleteDatabaseTemplate, databaseId)
 }
 
 func (provisioner *MssqlProvisioner) CreateUser(databaseId, userId, password string) error {
-	return provisioner.executeTemplate(createUserTemplate, databaseId, userId, password)
+	return provisioner.executeTemplateWithoutTx(createUserTemplate, databaseId, userId, password)
 }
 
 func (provisioner *MssqlProvisioner) DeleteUser(databaseId, userId string) error {
-	return provisioner.executeTemplate(deleteUserTemplate, databaseId, userId)
+	return provisioner.executeTemplateWithoutTx(deleteUserTemplate, databaseId, userId)
 }
 
-func (provisioner *MssqlProvisioner) executeTemplate(template []string, targs ...interface{}) error {
+func (provisioner *MssqlProvisioner) executeTemplateWithTx(template []string, targs ...interface{}) error {
 	tx, err := provisioner.dbClient.Begin()
 	if err != nil {
 		return err
 	}
 
 	for _, templateLine := range template {
-		// more details or alternatives here:
-
-		sqlLine := fmt.Sprintf(templateLine, targs...)
-		extraErrorStart := strings.LastIndex(sqlLine, "%!(EXTRA")
-		if extraErrorStart != -1 {
-			// trim the extra args errs from sprintf
-			sqlLine = sqlLine[0:extraErrorStart]
-		}
+		sqlLine := compileTemplate(templateLine, targs...)
 
 		provisioner.logger.Debug("mssql-exec", lager.Data{"query": sqlLine})
 		_, err = tx.Exec(sqlLine)
@@ -116,4 +120,28 @@ func (provisioner *MssqlProvisioner) executeTemplate(template []string, targs ..
 	}
 
 	return nil
+}
+
+func (provisioner *MssqlProvisioner) executeTemplateWithoutTx(template []string, targs ...interface{}) error {
+	for _, templateLine := range template {
+		sqlLine := compileTemplate(templateLine, targs...)
+
+		provisioner.logger.Debug("mssql-exec", lager.Data{"query": sqlLine})
+		_, err := provisioner.dbClient.Exec(sqlLine)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func compileTemplate(template string, targs ...interface{}) string {
+	compiled := fmt.Sprintf(template, targs...)
+	extraErrorStart := strings.LastIndex(compiled, "%!(EXTRA")
+	if extraErrorStart != -1 {
+		// trim the extra args errs from sprintf
+		compiled = compiled[0:extraErrorStart]
+	}
+	return compiled
 }
