@@ -16,24 +16,26 @@
 		},
 		{
 			"ImportPath": "github.com/gorilla/context",
-			"Rev": "50c25fb3b2b3b3cc724e9b6ac75fb44b3bccd0da"
+			"Rev": "215affda49addc4c8ef7e2534915df2c8c35c6cd"
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Rev": "e444e69cbd2e2e3e0749a2f3c717cec491552bbf"
+			"Rev": "8096f47503459bcc74d1f4c487b7e6e42e5746b5"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
-			"Comment": "v1.0.0-28-g6481765",
-			"Rev": "6481765dda39cbaae281109e6945449642329197"
+			"Comment": "v1.1.0-41-g38caab9",
+			"Rev": "38caab951a9ff39f0e61294a1dbaaa074a39228b"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/format",
-			"Rev": "4699d5a664396173c7d9fcef9e88be297c7bae13"
+			"Comment": "v1.0-33-ge7b2cd9",
+			"Rev": "e7b2cd96b5633fbc5f0c221159a5c1e85323f770"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/gbytes",
-			"Rev": "4699d5a664396173c7d9fcef9e88be297c7bae13"
+			"Comment": "v1.0-33-ge7b2cd9",
+			"Rev": "e7b2cd96b5633fbc5f0c221159a5c1e85323f770"
 		},
 		{
 			"ImportPath": "github.com/pivotal-cf/brokerapi",
@@ -41,7 +43,7 @@
 		},
 		{
 			"ImportPath": "github.com/pivotal-golang/lager",
-			"Rev": "ce9effb2d1062e2d81333f942df0549706901b1b"
+			"Rev": "d0663447db75fcf983c95bda8b1a908305df6e1e"
 		}
 	]
 }
