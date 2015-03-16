@@ -1,0 +1,8 @@
+---
+applications:
+- name: cf-mssql-broker
+  memory: 30M
+  instances: 1
+  host: cf-mssql-broker
+  buildpack: https://github.com/stefanschneider/go-buildpack
+  command: "cf-mssql-broker -config=cf_mssql_broker_noodbc_config.json"
