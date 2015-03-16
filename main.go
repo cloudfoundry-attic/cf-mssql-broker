@@ -82,7 +82,10 @@ func main() {
 	}
 
 	mssqlProv = provisioner.NewMssqlProvisioner(logger, brokerConfig.BrokerGoSqlDriver, mssqlPars)
-	mssqlProv.Init()
+	err = mssqlProv.Init()
+	if err != nil {
+		logger.Fatal("error-initializing-provisioner", err)
+	}
 
 	serviceBroker := &mssqlServiceBroker{}
 
