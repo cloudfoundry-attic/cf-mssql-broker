@@ -44,6 +44,10 @@
 		{
 			"ImportPath": "github.com/pivotal-golang/lager",
 			"Rev": "d0663447db75fcf983c95bda8b1a908305df6e1e"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/md4",
+			"Rev": "1351f936d976c60a0a48d728281922cf63eafb8d"
 		}
 	]
 }
