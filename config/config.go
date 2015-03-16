@@ -11,6 +11,7 @@ import (
 type Config struct {
 	DbIdentifierPrefix    string                      `json:"dbIdentifierPrefix"`
 	ListeningAddr         string                      `json:"listeningAddr"`
+	LogLevel              string                      `json:"logLevel"`
 	Crednetials           brokerapi.BrokerCredentials `json:"brokerCredentials"`
 	ServiceCatalog        []brokerapi.Service         `json:"serviceCatalog"`
 	BrokerGoSqlDriver     string                      `json:"brokerGoSqlDriver"`

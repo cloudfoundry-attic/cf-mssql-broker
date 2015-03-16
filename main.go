@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/hpcloud/cf-mssql-broker/config"
 	"github.com/hpcloud/cf-mssql-broker/provisioner"
 	"github.com/pivotal-cf/brokerapi"
@@ -9,6 +10,13 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+)
+
+const (
+	DEBUG = "debug"
+	INFO  = "info"
+	ERROR = "error"
+	FATAL = "fatal"
 )
 
 var configFile = flag.String("config", "", "Location of the Mssql Service Broker config json file")
@@ -30,18 +38,37 @@ func getListeningAddr(config *config.Config) string {
 	return ":" + envPort
 }
 
+func getLogLevel(config *config.Config) lager.LogLevel {
+	var minLogLevel lager.LogLevel
+	switch config.LogLevel {
+	case DEBUG:
+		minLogLevel = lager.DEBUG
+	case INFO:
+		minLogLevel = lager.INFO
+	case ERROR:
+		minLogLevel = lager.ERROR
+	case FATAL:
+		minLogLevel = lager.FATAL
+	default:
+		panic(fmt.Errorf("invalid log level: %s", config.LogLevel))
+	}
+
+	return minLogLevel
+}
+
 func main() {
-	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
 
 	flag.Parse()
 	var err error
 	brokerConfig, err = config.LoadFromFile(*configFile)
-	if err != nil {
-		logger.Fatal("config-load-error", err)
-	}
-	logger.Info("config-load-successful", lager.Data{"file": configFile})
 
-	logger.Debug("config-file", lager.Data{"config": brokerConfig})
+	if err != nil {
+		panic(fmt.Errorf("configuration load error from file %s. Err: %s", *configFile, err))
+	}
+
+	logger.RegisterSink(lager.NewWriterSink(os.Stdout, getLogLevel(brokerConfig)))
+
+	logger.Debug("config-load-success", lager.Data{"file-source": *configFile, "config": brokerConfig})
 
 	mssqlPars := brokerConfig.BrokerMssqlConnection
 

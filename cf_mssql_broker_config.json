@@ -1,6 +1,7 @@
 {
 	"dbIdentifierPrefix": "cf-",
 	"listeningAddr": ":3000",
+	"logLevel": "debug",
 	"brokerCredentials": {
 		"username": "username",
 		"password": "password"

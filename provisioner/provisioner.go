@@ -1,10 +1,8 @@
 package provisioner
 
 import (
-	_ "code.google.com/p/odbc"
 	"database/sql"
 	"fmt"
-	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/pivotal-golang/lager"
 	"strings"
 )
