@@ -14,6 +14,20 @@ import (
 var createDatabaseTemplate = []string{
 	"use master",
 	"create database [%[1]v] containment = partial",
+	`
+use [%[1]v];
+create role [cf_bindings];
+use master;
+	`,
+	`
+use [%[1]v];
+grant alter, control, create sequence,
+      create sequence, delete, execute,
+	  insert, references, select, update,
+	  view change tracking, view definition
+	on schema::[dbo] to [cf_bindings];
+use master;
+	`,
 }
 
 // fmt template parameters: 1.databaseId
@@ -26,8 +40,9 @@ var deleteDatabaseTemplate = []string{
 // fmt template parameters: 1.databaseId, 2.userId, 3.password
 var createUserTemplate = []string{
 	"use [%[1]v]",
-	"create user [%[2]v] with password='%[3]v'",
-	"alter role [db_owner] add member [%[2]v]",
+	"create user [%[2]v] with password='%[3]v', default_schema=[dbo] ",
+	"alter role [db_ddladmin] add member [%[2]v]",
+	"alter role [cf_bindings] add member [%[2]v]",
 	"use master",
 }
 
