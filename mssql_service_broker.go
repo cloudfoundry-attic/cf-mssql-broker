@@ -93,7 +93,16 @@ func (*mssqlServiceBroker) Bind(instanceID, bindingID string) (interface{}, erro
 	username := databaseName + "-" + bindingID
 	password := secureRandomString(32) + happySqlPasswordPolicySuffix
 
-	exist, err := mssqlProv.IsUserCreated(databaseName, username)
+	exist, err := mssqlProv.IsDatabaseCreated(databaseName)
+	if err != nil {
+		logger.Fatal("provisioner-error", err)
+	}
+
+	if !exist {
+		return nil, brokerapi.ErrInstanceDoesNotExist
+	}
+
+	exist, err = mssqlProv.IsUserCreated(databaseName, username)
 	if err != nil {
 		logger.Fatal("provisioner-error", err)
 	}
@@ -123,7 +132,16 @@ func (*mssqlServiceBroker) Unbind(instanceID, bindingID string) error {
 	databaseName := brokerConfig.DbIdentifierPrefix + instanceID
 	username := databaseName + "-" + bindingID
 
-	exist, err := mssqlProv.IsUserCreated(databaseName, username)
+	exist, err := mssqlProv.IsDatabaseCreated(databaseName)
+	if err != nil {
+		logger.Fatal("provisioner-error", err)
+	}
+
+	if !exist {
+		return brokerapi.ErrInstanceDoesNotExist
+	}
+
+	exist, err = mssqlProv.IsUserCreated(databaseName, username)
 	if err != nil {
 		logger.Fatal("provisioner-error", err)
 	}
