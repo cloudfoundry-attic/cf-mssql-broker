@@ -37,5 +37,6 @@
 	},
 
 	"servedMssqlBindingHostname" : "192.168.1.10",
-	"servedMssqlBindingPort" : 1433
+	"servedMssqlBindingPort" : 1433,
+	"grantDbOwnerForBindings": false
 }

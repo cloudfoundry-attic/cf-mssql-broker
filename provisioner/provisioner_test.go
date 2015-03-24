@@ -102,7 +102,7 @@ func TestDeleteUserOdbcDriver(t *testing.T) {
 	}
 
 	// Act
-	err = mssqlProv.CreateUser(dbName, userNanme, "passwordAa_0")
+	err = mssqlProv.CreateUser(dbName, userNanme, "passwordAa_0", true)
 
 	// Assert
 	if err != nil {
@@ -138,7 +138,7 @@ func TestCreateUserOdbcDriver(t *testing.T) {
 	if err != nil {
 		t.Errorf("Database create error, %v", err)
 	}
-	err = mssqlProv.CreateUser(dbName, userNanme, "passwordAa_0")
+	err = mssqlProv.CreateUser(dbName, userNanme, "passwordAa_0", false)
 	if err != nil {
 		t.Errorf("User create error, %v", err)
 	}

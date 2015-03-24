@@ -14,20 +14,20 @@ import (
 var createDatabaseTemplate = []string{
 	"use master",
 	"create database [%[1]v] containment = partial",
-	`
-use [%[1]v];
-create role [cf_bindings];
-use master;
+}
+
+// fmt template paramters: 1.databaseId
+var createRoleWithFullDboAccessTemplate = []string{
+	"use [%[1]v]",
+	"create role [cf_bindings]",
+	`grant	alter, control, create sequence,
+	       	create sequence, delete, execute,
+		   	insert, references, select, update,
+		   	view change tracking, view definition, 
+			take ownership
+		on schema::[dbo] to [cf_bindings]
 	`,
-	`
-use [%[1]v];
-grant alter, control, create sequence,
-      create sequence, delete, execute,
-	  insert, references, select, update,
-	  view change tracking, view definition
-	on schema::[dbo] to [cf_bindings];
-use master;
-	`,
+	"use master",
 }
 
 // fmt template parameters: 1.databaseId
@@ -37,11 +37,11 @@ var deleteDatabaseTemplate = []string{
 	"drop database [%[1]v]",
 }
 
-// fmt template parameters: 1.databaseId, 2.userId, 3.password
+// fmt template parameters: 1.databaseId, 2.userId, 3.password, 4.dbRole
 var createUserTemplate = []string{
 	"use [%[1]v]",
 	"create user [%[2]v] with password='%[3]v', default_schema=[dbo] ",
-	"alter role [db_ddladmin] add member [%[2]v]",
+	"alter role [%[4]v] add member [%[2]v]",
 	"alter role [cf_bindings] add member [%[2]v]",
 	"use master",
 }
@@ -100,15 +100,29 @@ func (provisioner *MssqlProvisioner) Init() error {
 }
 
 func (provisioner *MssqlProvisioner) CreateDatabase(databaseId string) error {
-	return provisioner.executeTemplateWithoutTx(createDatabaseTemplate, databaseId)
+	err := provisioner.executeTemplateWithoutTx(createDatabaseTemplate, databaseId)
+	if err != nil {
+		return err
+	}
+
+	err = provisioner.executeTemplateWithTx(createRoleWithFullDboAccessTemplate, databaseId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (provisioner *MssqlProvisioner) DeleteDatabase(databaseId string) error {
 	return provisioner.executeTemplateWithoutTx(deleteDatabaseTemplate, databaseId)
 }
 
-func (provisioner *MssqlProvisioner) CreateUser(databaseId, userId, password string) error {
-	return provisioner.executeTemplateWithoutTx(createUserTemplate, databaseId, userId, password)
+func (provisioner *MssqlProvisioner) CreateUser(databaseId, userId, password string, grantDbOwner bool) error {
+	role := "db_ddladmin"
+	if grantDbOwner {
+		role = "db_owner"
+	}
+	return provisioner.executeTemplateWithoutTx(createUserTemplate, databaseId, userId, password, role)
 }
 
 func (provisioner *MssqlProvisioner) DeleteUser(databaseId, userId string) error {
