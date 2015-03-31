@@ -11,6 +11,16 @@
 			"Rev": "aa2e03be1f0bdb299da2e48b172f812fa3ab3d0e"
 		},
 		{
+			"ImportPath": "code.google.com/p/winsvc/svc",
+			"Comment": "null-15",
+			"Rev": "5bc4f5be21a7882b35705a92c4412075279104f7"
+		},
+		{
+			"ImportPath": "code.google.com/p/winsvc/winapi",
+			"Comment": "null-15",
+			"Rev": "5bc4f5be21a7882b35705a92c4412075279104f7"
+		},
+		{
 			"ImportPath": "github.com/denisenkom/go-mssqldb",
 			"Rev": "e5487e5ba99176c01442739563c592f62c78e91b"
 		},

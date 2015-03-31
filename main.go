@@ -56,9 +56,11 @@ func getLogLevel(config *config.Config) lager.LogLevel {
 	return minLogLevel
 }
 
-func main() {
+func runMain() {
 
-	flag.Parse()
+	if !flag.Parsed() {
+		flag.Parse()
+	}
 	var err error
 	brokerConfig, err = config.LoadFromFile(*configFile)
 
