@@ -32,7 +32,7 @@
 	"brokerMssqlConnection": {
 		"server":   "localhost\\sqlexpress",
 		"database": "master",
-		"driver": 	"sql server",
+		"driver": 	"sql server"
 	},
 
 	"servedMssqlBindingHostname" : "192.168.1.10",
