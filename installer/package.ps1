@@ -77,15 +77,34 @@ function DoAction-Install()
         exit 1        
     }
     $mssqlServer = $env:MSSQL_SERVER
+
+    if ($env:BROKER_USERNAME -eq $null)
+    {
+        Write-Error 'Could not find environment variable BROKER_USERNAME. Please set it and run the setup again.'
+        exit 1        
+    }
+    $brokerUsername = $env:BROKER_USERNAME
+
+    if ($env:BROKER_PASSWORD -eq $null)
+    {
+        Write-Error 'Could not find environment variable BROKER_PASSWORD. Please set it and run the setup again.'
+        exit 1        
+    }
+    $brokerPassword = $env:BROKER_PASSWORD
+
     
-    if ($env:MSSQL_USER -eq $null -or $env:MSSQL_PASSWORD -eq $null)
+    if ($env:MSSQL_USER -eq $null)
     {
         $trustedConnection = $true
     }
     else
     {
         $mssqlUser = $env:MSSQL_USER
-        $mssqlPassword = $env:MSSQL_PASSWORD
+        if ($env:MSSQL_PASSWORD -eq $null)
+        {
+            $mssqlPassword = ""
+        }
+        
     }
     
     if ($env:BROKER_DESTFOLDER -eq $null)
@@ -113,6 +132,11 @@ function DoAction-Install()
     else
     {
         $bindingHost = $env:MSSQL_BINDING_HOST
+    }
+
+    if ($env:MSSQL_SERVICE_NAME -eq $null)
+    {
+        $providedServiceName = "mssql"
     }
 
     Write-Output "Using server ${mssqlServer}"
@@ -166,14 +190,18 @@ function DoAction-Install()
         $config.brokerMssqlConnection | Add-Member -Name "uid" -Value $mssqlUser -MemberType NoteProperty -Force
         $config.brokerMssqlConnection | Add-Member -Name "pwd" -Value $mssqlPassword -MemberType NoteProperty -Force
     }
-    if($env:BROKER_USERNAME -ne $null)
-    {
-        $config.brokerCredentials | Add-Member -Name "username" -Value $env:BROKER_USERNAME -MemberType NoteProperty -Force
-    }
-    if($env:BROKER_PASSWORD -ne $null)
-    {
-        $config.brokerCredentials | Add-Member -Name "password" -Value $env:BROKER_PASSWORD -MemberType NoteProperty -Force
-    }
+    
+    $config.brokerCredentials | Add-Member -Name "username" -Value $brokerUsername -MemberType NoteProperty -Force
+    $config.brokerCredentials | Add-Member -Name "password" -Value $brokerPassword -MemberType NoteProperty -Force
+
+    #set service catalog
+    $serviceCatalog = $config.serviceCatalog | Select-Object -Index 0
+    $serviceCatalog.name = $providedServiceName
+    $serviceCatalog.id = [guid]::NewGuid()
+
+    #generate plan ID
+    $newPlanID = [guid]::NewGuid()
+    $serviceCatalog.plans | Select-Object -Index 0 | Add-Member -Name "id" -Value $newPlanID -MemberType NoteProperty -Force
 
     $config  | ConvertTo-Json -depth 999 | Out-File $configFile -Encoding ascii
 
