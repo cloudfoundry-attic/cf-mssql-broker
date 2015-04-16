@@ -138,6 +138,10 @@ function DoAction-Install()
     {
         $providedServiceName = "mssql"
     }
+    else
+    {
+        $providedServiceName = $env:MSSQL_SERVICE_NAME
+    }
 
     Write-Output "Using server ${mssqlServer}"
     Write-Output "Using installation folder ${destFolder}"
@@ -228,7 +232,7 @@ function InstallBroker($destfolder, $logFolder, $configFile)
     Start-Service -DisplayName $serviceName
     
     # Setup a firewall rule
-    New-NetFirewallRule -DisplayName ìAllow MsSql Broker TCP/IP Communicationî -Direction Inbound -Program $binary -RemoteAddress LocalSubnet -Action Allow
+    New-NetFirewallRule -DisplayName ‚ÄúAllow MsSql Broker TCP/IP Communication‚Äù -Direction Inbound -Program $binary -RemoteAddress LocalSubnet -Action Allow
 }
 
 if ($action -eq 'package')
