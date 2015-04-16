@@ -138,6 +138,10 @@ function DoAction-Install()
     {
         $providedServiceName = "mssql"
     }
+    else
+    {
+        $providedServiceName = $env:MSSQL_SERVICE_NAME
+    }
 
     Write-Output "Using server ${mssqlServer}"
     Write-Output "Using installation folder ${destFolder}"
