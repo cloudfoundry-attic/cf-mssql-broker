@@ -10,7 +10,7 @@ import (
 var logger *lagertest.TestLogger = lagertest.NewTestLogger("mssql-provisioner")
 var mssqlPars = map[string]string{
 	"driver":             "sql server",
-	"server":             "(local)\\sqlexpress",
+	"server":             "127.0.0.1",
 	"database":           "master",
 	"trusted_connection": "yes",
 }
