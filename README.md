@@ -49,7 +49,7 @@ It this is necessary, extra migrations steps need to be taken for the exsing bin
 
 The brokerGoSqlDriver and brokerMssqlConnection are settings that the broker uses to connect to the mssql instance. brokerGoSqlDriver can be odbc (recommanded https://code.google.com/p/odbc/) for mssql (experimental https://github.com/denisenkom/go-mssqldb). brokerMssqlConnection is a map that is 
 converted into a connection string (e.g. "server=localhost;port=1433") consumed by odbc or mssql go library.
-Exmaple for a local trusted brokerMssqlConnection with odbc driver:
+Example for a local trusted brokerMssqlConnection with odbc driver:
 	{
 		"server":   "localhost\\sqlexpress",
 		"database": "master",
