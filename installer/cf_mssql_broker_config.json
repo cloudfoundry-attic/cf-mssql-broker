@@ -17,7 +17,7 @@
 	            {
 	                "description": "Shared SQL Server",
 	                "id": "fb740fd7-2029-467a-9256-63ecd882f11c",
-	                "name": "default",
+	                "name": "free",
 	                "metadata": {
 	                    "bullets": [],
 	                    "displayName": "Mssql"
