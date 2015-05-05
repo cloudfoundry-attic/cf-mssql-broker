@@ -9,15 +9,16 @@ import (
 )
 
 type Config struct {
-	DbIdentifierPrefix    string                      `json:"dbIdentifierPrefix"`
-	ListeningAddr         string                      `json:"listeningAddr"`
-	LogLevel              string                      `json:"logLevel"`
-	Crednetials           brokerapi.BrokerCredentials `json:"brokerCredentials"`
-	ServiceCatalog        []brokerapi.Service         `json:"serviceCatalog"`
-	BrokerGoSqlDriver     string                      `json:"brokerGoSqlDriver"`
-	BrokerMssqlConnection map[string]string           `json:"brokerMssqlConnection"`
-	ServedBindingHostname string                      `json:"servedMssqlBindingHostname"`
-	ServedBindingPort     int                         `json:"servedMssqlBindingPort"`
+	DbIdentifierPrefix      string                      `json:"dbIdentifierPrefix"`
+	ListeningAddr           string                      `json:"listeningAddr"`
+	LogLevel                string                      `json:"logLevel"`
+	Crednetials             brokerapi.BrokerCredentials `json:"brokerCredentials"`
+	ServiceCatalog          []brokerapi.Service         `json:"serviceCatalog"`
+	BrokerGoSqlDriver       string                      `json:"brokerGoSqlDriver"`
+	BrokerMssqlConnection   map[string]string           `json:"brokerMssqlConnection"`
+	ServedBindingHostname   string                      `json:"servedMssqlBindingHostname"`
+	ServedBindingPort       int                         `json:"servedMssqlBindingPort"`
+	GrantDbOwnerForBindings bool                        `json:"grantDbOwnerForBindings"`
 }
 
 func LoadFromFile(path string) (*Config, error) {

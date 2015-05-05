@@ -111,7 +111,7 @@ func (*mssqlServiceBroker) Bind(instanceID, bindingID string) (interface{}, erro
 		return nil, brokerapi.ErrBindingAlreadyExists
 	}
 
-	err = mssqlProv.CreateUser(databaseName, username, password)
+	err = mssqlProv.CreateUser(databaseName, username, password, brokerConfig.GrantDbOwnerForBindings)
 	if err != nil {
 		logger.Fatal("provisioner-error", err)
 	}
