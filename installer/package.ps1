@@ -232,7 +232,7 @@ function InstallBroker($destfolder, $logFolder, $configFile)
     Start-Service -DisplayName $serviceName
     
     # Setup a firewall rule
-    New-NetFirewallRule -DisplayName “Allow MsSql Broker TCP/IP Communication” -Direction Inbound -Program $binary -RemoteAddress LocalSubnet -Action Allow
+    New-NetFirewallRule -DisplayName "Allow MsSql Broker TCP/IP Communication" -Direction Inbound -Program $binary -RemoteAddress LocalSubnet -Action Allow
 }
 
 if ($action -eq 'package')
