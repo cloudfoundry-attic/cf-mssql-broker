@@ -24,11 +24,11 @@ Use the sql management studio to enable tcp or use the following doc to automate
 To configure or automate the firewall for SQL Server use the following PS example:
 
 New-NetFirewallRule -DisplayName “SQL Server” -Direction Inbound –Protocol TCP –LocalPort 1433 -Action allow
- 
+
 
 ### Enable Contained Database Authentication
 
-Binding operations will create a user with a password only in the contained database. This is disabled by 
+Binding operations will create a user with a password only in the contained database. This is disabled by
 default in SQL Server 2012 and 2014. Use the following commmand to enable contained database authentication:
 
 SQLCmd -S .\sqlexpress  -Q "EXEC sp_configure 'contained database authentication', 1; reconfigure;"
@@ -49,14 +49,14 @@ It this is necessary, extra migrations steps need to be taken for the exsing bin
 
 The brokerGoSqlDriver and brokerMssqlConnection are settings that the broker uses to connect to the mssql instance. brokerGoSqlDriver can be odbc (recommanded https://code.google.com/p/odbc/) for mssql (experimental https://github.com/denisenkom/go-mssqldb). brokerMssqlConnection is a map that is 
 converted into a connection string (e.g. "server=localhost;port=1433") consumed by odbc or mssql go library.
-Exmaple for a local trusted brokerMssqlConnection with odbc driver:
+Example for a local trusted brokerMssqlConnection with odbc driver:
 	{
 		"server":   "localhost\\sqlexpress",
 		"database": "master",
 		"driver": 	"sql server",
 		"trusted_connection": "yes"
 	}
-	
+
 listeningAddr and brokerCredentials are used for the brokers http server. The CF CloudController will use this setting to connect to the broker.
 
 dbIdentifierPrefix appended at the begining of the instance ID for the SQL Server database name, and it is appended at the begining of the binding id for the SQL Server user name. This will allow an adim to easily idetify the databases managed by a particular mssql broker.
@@ -96,7 +96,7 @@ curl 'http://username:password@localhost:3000/v2/service_instances/instance1?ser
 
 ## Windows Service installation
 
-Use the following steps to install a windows service for the broker. Make sure you copy the binary 
+Use the following steps to install a windows service for the broker. Make sure you copy the binary
 and config file to "c:\cf-mssql-broker"
 
 choco install nssm
@@ -107,12 +107,12 @@ $installDir = 'C:\Users\schneids\workspace\gowp\src\cf-mssql-broker'
 $exePath = Join-Path $installDir "cf-mssql-broker.exe"
 $logPath = Join-Path $installDir "cf-mssql-broker.log"
 
-mkdir -f $installDir 
+mkdir -f $installDir
 
 nssm install cf-mssql-broker $exePath
 
-nssm set  cf-mssql-broker  AppStdout $logPath 
-nssm set  cf-mssql-broker  AppStderr $logPath 
+nssm set  cf-mssql-broker  AppStdout $logPath
+nssm set  cf-mssql-broker  AppStderr $logPath
 
 nssm start cf-mssql-broker
 

@@ -24,13 +24,13 @@ param (
 
 if (($pshome -like "*syswow64*") -and ((Get-WmiObject Win32_OperatingSystem).OSArchitecture -like "64*")) {
     Write-Warning "Restarting script under 64 bit powershell"
-    
+
     $powershellLocation = join-path ($pshome -replace "syswow64", "sysnative") "powershell.exe"
     $scriptPath = $SCRIPT:MyInvocation.MyCommand.Path
-    
+
     # relaunch this script under 64 bit shell
     $process = Start-Process -Wait -PassThru -NoNewWindow $powershellLocation "-nologo -file ${scriptPath} -action ${action} -binDir ${binDir}"
-    
+
     # This will exit the original powershell process. This will only be done in case of an x86 process on a x64 OS.
     exit $process.ExitCode
 }
@@ -60,39 +60,39 @@ function DoAction-Package($binDir)
         Write-Error $installerProcess.StandardError.ReadToEnd()
         exit 1
     }
-    
+
     Write-Output 'Removing artifacts ...'
     Remove-Item -Force -Path $destfile -ErrorAction SilentlyContinue
-    
+
     Write-Output 'Done.'
 }
 
 function DoAction-Install()
 {
     Write-Output 'Installing MsSql Broker ...'
-    
+
     if ($env:MSSQL_SERVER -eq $null)
     {
         Write-Error 'Could not find environment variable MSSQL_SERVER. Please set it and run the setup again.'
-        exit 1        
+        exit 1
     }
     $mssqlServer = $env:MSSQL_SERVER
 
     if ($env:BROKER_USERNAME -eq $null)
     {
         Write-Error 'Could not find environment variable BROKER_USERNAME. Please set it and run the setup again.'
-        exit 1        
+        exit 1
     }
     $brokerUsername = $env:BROKER_USERNAME
 
     if ($env:BROKER_PASSWORD -eq $null)
     {
         Write-Error 'Could not find environment variable BROKER_PASSWORD. Please set it and run the setup again.'
-        exit 1        
+        exit 1
     }
     $brokerPassword = $env:BROKER_PASSWORD
 
-    
+
     if ($env:MSSQL_USER -eq $null)
     {
         $trustedConnection = $true
@@ -104,9 +104,9 @@ function DoAction-Install()
         {
             $mssqlPassword = ""
         }
-        
+
     }
-    
+
     if ($env:BROKER_DESTFOLDER -eq $null)
     {
         $destFolder = 'c:\mssql-broker'
@@ -194,7 +194,7 @@ function DoAction-Install()
         $config.brokerMssqlConnection | Add-Member -Name "uid" -Value $mssqlUser -MemberType NoteProperty -Force
         $config.brokerMssqlConnection | Add-Member -Name "pwd" -Value $mssqlPassword -MemberType NoteProperty -Force
     }
-    
+
     $config.brokerCredentials | Add-Member -Name "username" -Value $brokerUsername -MemberType NoteProperty -Force
     $config.brokerCredentials | Add-Member -Name "password" -Value $brokerPassword -MemberType NoteProperty -Force
 
@@ -225,14 +225,14 @@ function InstallBroker($destfolder, $logFolder, $configFile)
         Write-Output "Stopping service ${serviceName}"
         Stop-Service -DisplayName $serviceName
         Write-Output "Removing service ${serviceName}"
-        $service.delete()            
+        $service.delete()
     }
-    
+
     New-Service -Name $serviceName -BinaryPathName "${binary} -logDir ${logFolder} -config ${configFile}" -DisplayName $serviceName -StartupType Automatic
     Start-Service -DisplayName $serviceName
-    
+
     # Setup a firewall rule
-    New-NetFirewallRule -DisplayName “Allow MsSql Broker TCP/IP Communication” -Direction Inbound -Program $binary -RemoteAddress LocalSubnet -Action Allow
+    New-NetFirewallRule -DisplayName "Allow MsSql Broker TCP/IP Communication" -Direction Inbound -Program $binary -RemoteAddress LocalSubnet -Action Allow
 }
 
 if ($action -eq 'package')
@@ -242,17 +242,17 @@ if ($action -eq 'package')
         Write-Error 'The binDir parameter is mandatory when packaging.'
         exit 1
     }
-    
+
     $binDir = Resolve-Path $binDir
-    
+
     if ((Test-Path $binDir) -eq $false)
     {
         Write-Error "Could not find directory ${binDir}."
-        exit 1        
+        exit 1
     }
-    
+
     Write-Output "Using binary dir ${binDir}"
-    
+
     DoAction-Package $binDir
 }
 elseif ($action -eq 'install')
