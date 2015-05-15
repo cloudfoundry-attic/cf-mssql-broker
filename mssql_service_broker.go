@@ -116,13 +116,16 @@ func (*mssqlServiceBroker) Bind(instanceID, bindingID string) (interface{}, erro
 		logger.Fatal("provisioner-error", err)
 	}
 
-	return MssqlBindingCredentials{
-		Hostname: brokerConfig.ServedBindingHostname,
-		Port:     brokerConfig.ServedBindingPort,
-		Name:     databaseName,
-		Username: username,
-		Password: password,
-	}, nil
+	bindingInfo := MssqlBindingCredentials{
+		Hostname:         brokerConfig.ServedBindingHostname,
+		Port:             brokerConfig.ServedBindingPort,
+		Name:             databaseName,
+		Username:         username,
+		Password:         password,
+		ConnectionString: generateConnectionString(brokerConfig.ServedBindingHostname, brokerConfig.ServedBindingPort, databaseName, username, password),
+	}
+
+	return bindingInfo, nil
 }
 
 func (*mssqlServiceBroker) Unbind(instanceID, bindingID string) error {
