@@ -32,7 +32,7 @@
 	"brokerMssqlConnection": {
 		"server":   "localhost\\sqlexpress",
 		"database": "master",
-		"driver": 	"sql server",
+		"driver": 	"{SQL Server Native Client 11.0}",
 		"trusted_connection": "yes"
 	},
 
