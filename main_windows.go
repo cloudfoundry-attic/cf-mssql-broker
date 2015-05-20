@@ -74,33 +74,34 @@ func redirectStdStreams(logDir string) error {
 }
 
 func main() {
-
-	consoleMode := false
-	logDir := ""
-	flag.BoolVar(&consoleMode, "console", false, "Determines if application runs in console mode")
-	flag.StringVar(&logDir, "logDir", "", "The directory where the logs will be stored")
+	var logDir = flag.String("logDir", "", "The directory where the logs will be stored")
+	var serviceName = flag.String("serviceName", "mssql_broker", "The name of the service as installed in Windows SCM")
 
 	if !flag.Parsed() {
 		flag.Parse()
 	}
 
-	if consoleMode {
+	interactiveMode, err := svc.IsAnInteractiveSession()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if interactiveMode {
 		runMain()
 	} else {
 		var err error
 		//setting stdout, stderr and log output
-		err = redirectStdStreams(logDir)
+		err = redirectStdStreams(*logDir)
 
 		if err != nil {
 			panic(err.Error())
 		}
 
 		ws := WindowsService{}
-		run := svc.Run
 
-		err = run("mssql_broker", &ws)
+		err = svc.Run(*serviceName, &ws)
 		if err != nil {
-			os.Exit(1)
+			panic(err.Error())
 		}
 	}
 }
