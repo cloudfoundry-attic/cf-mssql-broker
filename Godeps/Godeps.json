@@ -7,12 +7,12 @@
 	"Deps": [
 		{
 			"ImportPath": "code.google.com/p/odbc",
-			"Comment": "null-43",
-			"Rev": "aa2e03be1f0bdb299da2e48b172f812fa3ab3d0e"
+			"Comment": "null-45",
+			"Rev": "6c29f5e00db9ba7212d3f3d6932ad3c417271eb8"
 		},
 		{
 			"ImportPath": "github.com/denisenkom/go-mssqldb",
-			"Rev": "e5487e5ba99176c01442739563c592f62c78e91b"
+			"Rev": "3fc47c72c5377f66a4bb00da4f56bc91b8fe73cb"
 		},
 		{
 			"ImportPath": "github.com/gorilla/context",
@@ -20,12 +20,12 @@
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Rev": "8096f47503459bcc74d1f4c487b7e6e42e5746b5"
+			"Rev": "94903de8c98a68d8b4483c529b26a5d146e386a2"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
-			"Comment": "v1.1.0-41-g38caab9",
-			"Rev": "38caab951a9ff39f0e61294a1dbaaa074a39228b"
+			"Comment": "v1.2.0-beta-9-gfbb6632",
+			"Rev": "fbb663242655b700c623e9629d7781db98957501"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/format",
@@ -39,15 +39,15 @@
 		},
 		{
 			"ImportPath": "github.com/pivotal-cf/brokerapi",
-			"Rev": "b88e30bdb27cf0e8e54ab655f0373a837a6f0e1e"
+			"Rev": "15b0ee33a737ef05859cfaa916b04a3dff10d66e"
 		},
 		{
 			"ImportPath": "github.com/pivotal-golang/lager",
-			"Rev": "d0663447db75fcf983c95bda8b1a908305df6e1e"
+			"Rev": "c88fa6d6c4d2f8a21a4599785211e41777750d34"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/md4",
-			"Rev": "1351f936d976c60a0a48d728281922cf63eafb8d"
+			"Rev": "4d48e5fa3d62b5e6e71260571bf76c767198ca02"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/windows",
