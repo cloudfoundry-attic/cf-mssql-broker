@@ -3,8 +3,8 @@
 package main
 
 import (
-	"code.google.com/p/winsvc/svc"
 	"flag"
+	"golang.org/x/sys/windows/svc"
 	"log"
 	"os"
 	"path"

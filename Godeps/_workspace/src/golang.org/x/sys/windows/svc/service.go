@@ -9,24 +9,25 @@
 package svc
 
 import (
-	"code.google.com/p/winsvc/winapi"
 	"errors"
 	"runtime"
 	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 // State describes service execution state (Stopped, Running and so on).
 type State uint32
 
 const (
-	Stopped         = State(winapi.SERVICE_STOPPED)
-	StartPending    = State(winapi.SERVICE_START_PENDING)
-	StopPending     = State(winapi.SERVICE_STOP_PENDING)
-	Running         = State(winapi.SERVICE_RUNNING)
-	ContinuePending = State(winapi.SERVICE_CONTINUE_PENDING)
-	PausePending    = State(winapi.SERVICE_PAUSE_PENDING)
-	Paused          = State(winapi.SERVICE_PAUSED)
+	Stopped         = State(windows.SERVICE_STOPPED)
+	StartPending    = State(windows.SERVICE_START_PENDING)
+	StopPending     = State(windows.SERVICE_STOP_PENDING)
+	Running         = State(windows.SERVICE_RUNNING)
+	ContinuePending = State(windows.SERVICE_CONTINUE_PENDING)
+	PausePending    = State(windows.SERVICE_PAUSE_PENDING)
+	Paused          = State(windows.SERVICE_PAUSED)
 )
 
 // Cmd represents service state change request. It is sent to a service
@@ -34,21 +35,21 @@ const (
 type Cmd uint32
 
 const (
-	Stop        = Cmd(winapi.SERVICE_CONTROL_STOP)
-	Pause       = Cmd(winapi.SERVICE_CONTROL_PAUSE)
-	Continue    = Cmd(winapi.SERVICE_CONTROL_CONTINUE)
-	Interrogate = Cmd(winapi.SERVICE_CONTROL_INTERROGATE)
-	Shutdown    = Cmd(winapi.SERVICE_CONTROL_SHUTDOWN)
+	Stop        = Cmd(windows.SERVICE_CONTROL_STOP)
+	Pause       = Cmd(windows.SERVICE_CONTROL_PAUSE)
+	Continue    = Cmd(windows.SERVICE_CONTROL_CONTINUE)
+	Interrogate = Cmd(windows.SERVICE_CONTROL_INTERROGATE)
+	Shutdown    = Cmd(windows.SERVICE_CONTROL_SHUTDOWN)
 )
 
 // Accepted is used to describe commands accepted by the service.
-// Note, that Interrogate is always accepted.
+// Note that Interrogate is always accepted.
 type Accepted uint32
 
 const (
-	AcceptStop             = Accepted(winapi.SERVICE_ACCEPT_STOP)
-	AcceptShutdown         = Accepted(winapi.SERVICE_ACCEPT_SHUTDOWN)
-	AcceptPauseAndContinue = Accepted(winapi.SERVICE_ACCEPT_PAUSE_CONTINUE)
+	AcceptStop             = Accepted(windows.SERVICE_ACCEPT_STOP)
+	AcceptShutdown         = Accepted(windows.SERVICE_ACCEPT_SHUTDOWN)
+	AcceptPauseAndContinue = Accepted(windows.SERVICE_ACCEPT_PAUSE_CONTINUE)
 )
 
 // Status combines State and Accepted commands to fully describe running service.
@@ -59,7 +60,7 @@ type Status struct {
 	WaitHint   uint32 // estimated time required for a pending operation, in milliseconds
 }
 
-// ChangeRequest is sent to service Handler to request service status change.
+// ChangeRequest is sent to the service Handler to request service status change.
 type ChangeRequest struct {
 	Cmd           Cmd
 	CurrentStatus Status
@@ -73,7 +74,8 @@ type Handler interface {
 	// Inside Execute you must read service change requests from r and
 	// act accordingly. You must keep service control manager up to date
 	// about state of your service by writing into s as required.
-	// args contains argument strings passed to the service.
+	// args contains service name followed by argument strings passed
+	// to the service.
 	// You can provide service exit code in exitCode return parameter,
 	// with 0 being "no error". You can also indicate if exit code,
 	// if any, is service specific or not by using svcSpecificEC
@@ -111,7 +113,7 @@ type ctlEvent struct {
 // service provides access to windows service api.
 type service struct {
 	name    string
-	h       syscall.Handle
+	h       windows.Handle
 	cWaits  *event
 	goWaits *event
 	c       chan ctlEvent
@@ -151,31 +153,31 @@ func (s *service) updateStatus(status *Status, ec *exitCode) error {
 	if s.h == 0 {
 		return errors.New("updateStatus with no service status handle")
 	}
-	var t winapi.SERVICE_STATUS
-	t.ServiceType = winapi.SERVICE_WIN32_OWN_PROCESS
+	var t windows.SERVICE_STATUS
+	t.ServiceType = windows.SERVICE_WIN32_OWN_PROCESS
 	t.CurrentState = uint32(status.State)
 	if status.Accepts&AcceptStop != 0 {
-		t.ControlsAccepted |= winapi.SERVICE_ACCEPT_STOP
+		t.ControlsAccepted |= windows.SERVICE_ACCEPT_STOP
 	}
 	if status.Accepts&AcceptShutdown != 0 {
-		t.ControlsAccepted |= winapi.SERVICE_ACCEPT_SHUTDOWN
+		t.ControlsAccepted |= windows.SERVICE_ACCEPT_SHUTDOWN
 	}
 	if status.Accepts&AcceptPauseAndContinue != 0 {
-		t.ControlsAccepted |= winapi.SERVICE_ACCEPT_PAUSE_CONTINUE
+		t.ControlsAccepted |= windows.SERVICE_ACCEPT_PAUSE_CONTINUE
 	}
 	if ec.errno == 0 {
-		t.Win32ExitCode = winapi.NO_ERROR
-		t.ServiceSpecificExitCode = winapi.NO_ERROR
+		t.Win32ExitCode = windows.NO_ERROR
+		t.ServiceSpecificExitCode = windows.NO_ERROR
 	} else if ec.isSvcSpecific {
-		t.Win32ExitCode = uint32(winapi.ERROR_SERVICE_SPECIFIC_ERROR)
+		t.Win32ExitCode = uint32(windows.ERROR_SERVICE_SPECIFIC_ERROR)
 		t.ServiceSpecificExitCode = ec.errno
 	} else {
 		t.Win32ExitCode = ec.errno
-		t.ServiceSpecificExitCode = winapi.NO_ERROR
+		t.ServiceSpecificExitCode = windows.NO_ERROR
 	}
 	t.CheckPoint = status.CheckPoint
 	t.WaitHint = status.WaitHint
-	return winapi.SetServiceStatus(s.h, &t)
+	return windows.SetServiceStatus(s.h, &t)
 }
 
 const (
@@ -185,7 +187,7 @@ const (
 
 func (s *service) run() {
 	s.goWaits.Wait()
-	s.h = syscall.Handle(ssHandle)
+	s.h = windows.Handle(ssHandle)
 	argv := (*[100]*int16)(unsafe.Pointer(sArgv))[:sArgc]
 	args := make([]string, len(argv))
 	for i, a := range argv {
@@ -263,11 +265,11 @@ func newCallback(fn interface{}) (cb uintptr, err error) {
 // inside one single executable. Perhaps, it can be overcome by
 // using RegisterServiceCtrlHandlerEx Windows api.
 
-// Run executes service named name by calling appropriate handler function.
+// Run executes service name by calling appropriate handler function.
 func Run(name string, handler Handler) error {
 	runtime.LockOSThread()
 
-	tid := winapi.GetCurrentThreadId()
+	tid := windows.GetCurrentThreadId()
 
 	s, err := newService(name, handler)
 	if err != nil {
@@ -281,7 +283,7 @@ func Run(name string, handler Handler) error {
 		// I could find statement to guarantee that. So putting
 		// check here to verify, otherwise things will go bad
 		// quickly, if ignored.
-		i := winapi.GetCurrentThreadId()
+		i := windows.GetCurrentThreadId()
 		if i != tid {
 			e.errno = sysErrNewThreadInCallback
 		}
@@ -291,7 +293,7 @@ func Run(name string, handler Handler) error {
 
 	var svcmain uintptr
 	getServiceMain(&svcmain)
-	t := []winapi.SERVICE_TABLE_ENTRY{
+	t := []windows.SERVICE_TABLE_ENTRY{
 		{syscall.StringToUTF16Ptr(s.name), svcmain},
 		{nil, 0},
 	}
@@ -306,7 +308,7 @@ func Run(name string, handler Handler) error {
 
 	go s.run()
 
-	err = winapi.StartServiceCtrlDispatcher(&t[0])
+	err = windows.StartServiceCtrlDispatcher(&t[0])
 	if err != nil {
 		return err
 	}

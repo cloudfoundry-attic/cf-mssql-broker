@@ -4,6 +4,7 @@
 
 // +build windows
 
+// func servicemain(argc uint32, argv **uint16)
 TEXT ·servicemain(SB),7,$0
 	MOVL	CX, ·sArgc(SB)
 	MOVL	DX, ·sArgv(SB)
@@ -34,6 +35,7 @@ exit:
 // I do not know why, but this seems to be the only way to call
 // ctlHandlerProc on Windows 7.
 
+// func servicectlhandler(ctl uint32) uintptr
 TEXT ·servicectlhandler(SB),7,$0
 	MOVQ	·ctlHandlerProc(SB), AX
 	JMP	AX

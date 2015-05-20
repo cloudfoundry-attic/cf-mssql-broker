@@ -7,19 +7,19 @@
 package svc
 
 import (
-	"code.google.com/p/winsvc/winapi"
 	"errors"
-	"syscall"
+
+	"golang.org/x/sys/windows"
 )
 
-// event represents auto-reset, initially non-signaled windows event.
+// event represents auto-reset, initially non-signaled Windows event.
 // It is used to communicate between go and asm parts of this package.
 type event struct {
-	h syscall.Handle
+	h windows.Handle
 }
 
 func newEvent() (*event, error) {
-	h, err := winapi.CreateEvent(nil, 0, 0, nil)
+	h, err := windows.CreateEvent(nil, 0, 0, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -27,19 +27,19 @@ func newEvent() (*event, error) {
 }
 
 func (e *event) Close() error {
-	return syscall.CloseHandle(e.h)
+	return windows.CloseHandle(e.h)
 }
 
 func (e *event) Set() error {
-	return winapi.SetEvent(e.h)
+	return windows.SetEvent(e.h)
 }
 
 func (e *event) Wait() error {
-	s, err := syscall.WaitForSingleObject(e.h, syscall.INFINITE)
+	s, err := windows.WaitForSingleObject(e.h, windows.INFINITE)
 	switch s {
-	case syscall.WAIT_OBJECT_0:
+	case windows.WAIT_OBJECT_0:
 		break
-	case syscall.WAIT_FAILED:
+	case windows.WAIT_FAILED:
 		return err
 	default:
 		return errors.New("unexpected result from WaitForSingleObject")
