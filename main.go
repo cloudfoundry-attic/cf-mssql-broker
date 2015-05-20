@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/hpcloud/cf-mssql-broker/config"
-	"github.com/hpcloud/cf-mssql-broker/provisioner"
+	"github.com/cloudfoundry-incubator/cf-mssql-broker/config"
+	"github.com/cloudfoundry-incubator/cf-mssql-broker/provisioner"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/pivotal-golang/lager"
 	"net/http"
