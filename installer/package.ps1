@@ -229,6 +229,10 @@ function InstallBroker($destfolder, $logFolder, $configFile)
     }
 
     New-Service -Name $serviceName -BinaryPathName "${binary} -logDir ${logFolder} -config ${configFile}" -DisplayName $serviceName -StartupType Automatic
+
+    #set restart on process failure after 15000 milliseconds
+    sc.exe failure $serviceName reset= 0   actions= restart/15000
+
     Start-Service -DisplayName $serviceName
 
     # Setup a firewall rule
