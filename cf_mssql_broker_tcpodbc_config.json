@@ -30,7 +30,7 @@
 	
 	"brokerGoSqlDriver": "odbc",
 	"brokerMssqlConnection": {
-		"driver": 	"sql server",
+		"driver": 	"{SQL Server Native Client 11.0}",
 		"server":   "127.0.0.1,38017",
 		"database": "master",
 		"uid": 		"sa",

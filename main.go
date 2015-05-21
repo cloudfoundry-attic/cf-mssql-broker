@@ -3,14 +3,34 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/hpcloud/cf-mssql-broker/config"
-	"github.com/hpcloud/cf-mssql-broker/provisioner"
+	"github.com/cloudfoundry-incubator/cf-mssql-broker/config"
+	"github.com/cloudfoundry-incubator/cf-mssql-broker/provisioner"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/pivotal-golang/lager"
 	"net/http"
 	"os"
 	"runtime"
 )
+
+type exitOnPanicWrapper struct {
+	parrent http.Handler
+}
+
+func (o exitOnPanicWrapper) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+
+		// Just wrap the ServeHTTP handler in a new goroutine
+		// so that panics thrown here will crash the process (i.e. fail fast).
+		// Some go sql drivers, like ODBC, have a lot process wide state
+		// and it may be very hard to recover from every internal failure.
+		// It is much safer for now to just crash the process and let SCM
+		// or other service manager restart the broker.
+		o.parrent.ServeHTTP(w, r)
+	}()
+	<-done
+}
 
 const (
 	DEBUG = "debug"
@@ -97,8 +117,8 @@ func runMain() {
 	addr := getListeningAddr(brokerConfig)
 	logger.Info("start-listening", lager.Data{"addr": addr})
 
-	err = http.ListenAndServe(addr, nil)
+	err = http.ListenAndServe(addr, exitOnPanicWrapper{http.DefaultServeMux})
 	if err != nil {
-		logger.Error("error-listenting", err)
+		logger.Fatal("error-listening", err)
 	}
 }

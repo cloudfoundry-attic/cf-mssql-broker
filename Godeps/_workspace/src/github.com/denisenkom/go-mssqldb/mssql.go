@@ -89,7 +89,10 @@ func (c *MssqlConn) Begin() (driver.Tx, error) {
 	for tok := range tokchan {
 		switch token := tok.(type) {
 		case error:
-			return nil, token
+			if c.sess.tranid != 0 {
+				return nil, token
+			}
+			return nil, CheckBadConn(token)
 		}
 	}
 	// successful BEGINXACT request will return sess.tranid
@@ -251,6 +254,9 @@ func (s *MssqlStmt) Exec(args []driver.Value) (res driver.Result, err error) {
 				rowCount = int64(token.RowCount)
 			}
 		case error:
+			if s.c.sess.logFlags&logErrors != 0 {
+				log.Println("got error:", token)
+			}
 			if s.c.sess.tranid != 0 {
 				return nil, token
 			}

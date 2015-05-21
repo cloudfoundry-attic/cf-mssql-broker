@@ -12,13 +12,11 @@ import (
 
 // fmt template paramters: 1.databaseId
 var createDatabaseTemplate = []string{
-	"use master",
 	"create database [%[1]v] containment = partial",
 }
 
 // fmt template parameters: 1.databaseId
 var deleteDatabaseTemplate = []string{
-	"use master",
 	"alter database [%[1]v] set single_user with rollback immediate",
 	"drop database [%[1]v]",
 }
@@ -72,6 +70,11 @@ func (provisioner *MssqlProvisioner) Init() error {
 	var err error = nil
 	connString := buildConnectionString(provisioner.connectionParams)
 	provisioner.dbClient, err = sql.Open(provisioner.goSqlDriver, connString)
+
+	// Set idle connections to 0 to prevent keeping open databases
+	// Enabling idle connections will create problems with ODBC driver when deleting DBs
+	provisioner.dbClient.SetMaxIdleConns(0)
+
 	if err != nil {
 		return err
 	}
@@ -84,6 +87,11 @@ func (provisioner *MssqlProvisioner) Init() error {
 	return nil
 }
 
+func (provisioner *MssqlProvisioner) Close() error {
+	err := provisioner.dbClient.Close()
+	return err
+}
+
 func (provisioner *MssqlProvisioner) CreateDatabase(databaseId string) error {
 	return provisioner.executeTemplateWithoutTx(createDatabaseTemplate, databaseId)
 }
@@ -93,11 +101,11 @@ func (provisioner *MssqlProvisioner) DeleteDatabase(databaseId string) error {
 }
 
 func (provisioner *MssqlProvisioner) CreateUser(databaseId, userId, password string) error {
-	return provisioner.executeTemplateWithoutTx(createUserTemplate, databaseId, userId, password)
+	return provisioner.executeTemplateWithTx(createUserTemplate, databaseId, userId, password)
 }
 
 func (provisioner *MssqlProvisioner) DeleteUser(databaseId, userId string) error {
-	return provisioner.executeTemplateWithoutTx(deleteUserTemplate, databaseId, userId)
+	return provisioner.executeTemplateWithTx(deleteUserTemplate, databaseId, userId)
 }
 
 func (provisioner *MssqlProvisioner) IsDatabaseCreated(databaseId string) (bool, error) {
