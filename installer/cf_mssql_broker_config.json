@@ -10,7 +10,7 @@
 	"serviceCatalog": [
 	    {
 	        "bindable": true,
-	        "description": "Microsoft SQL Server service for application development and testing",
+	        "description": "Microsoft SQL Server database service",
 	        "id": "b6844738-382b-4a9e-9f80-2ff5049d512f",
 	        "name": "mssql-dev",
 	        "plans": [
@@ -20,7 +20,7 @@
 	                "name": "free",
 	                "metadata": {
 	                    "bullets": [],
-	                    "displayName": "Mssql"
+	                    "displayName": "mssql"
 	                }
 	            }
 	        ],
