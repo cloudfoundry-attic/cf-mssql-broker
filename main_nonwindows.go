@@ -2,6 +2,8 @@
 
 package main
 
+import "os"
+
 func main() {
-	runMain()
+	runMain(os.Stdout)
 }

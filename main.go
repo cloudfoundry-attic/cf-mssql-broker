@@ -3,13 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"runtime"
+
 	"github.com/cloudfoundry-incubator/cf-mssql-broker/config"
 	"github.com/cloudfoundry-incubator/cf-mssql-broker/provisioner"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/pivotal-golang/lager"
-	"net/http"
-	"os"
-	"runtime"
 )
 
 type exitOnPanicWrapper struct {
@@ -76,7 +78,7 @@ func getLogLevel(config *config.Config) lager.LogLevel {
 	return minLogLevel
 }
 
-func runMain() {
+func runMain(writer io.Writer) {
 
 	if !flag.Parsed() {
 		flag.Parse()
@@ -88,7 +90,7 @@ func runMain() {
 		panic(fmt.Errorf("configuration load error from file %s. Err: %s", *configFile, err))
 	}
 
-	logger.RegisterSink(lager.NewWriterSink(os.Stdout, getLogLevel(brokerConfig)))
+	logger.RegisterSink(lager.NewWriterSink(writer, getLogLevel(brokerConfig)))
 
 	logger.Debug("config-load-success", lager.Data{"file-source": *configFile, "config": brokerConfig})
 
