@@ -4,6 +4,7 @@ import "fmt"
 
 type MssqlBindingCredentials struct {
 	Hostname         string `json:"hostname"`
+	Host             string `json:"host"`
 	Port             int    `json:"port"`
 	Name             string `json:"name"`
 	Username         string `json:"username"`

@@ -118,6 +118,7 @@ func (*mssqlServiceBroker) Bind(instanceID, bindingID string) (interface{}, erro
 
 	bindingInfo := MssqlBindingCredentials{
 		Hostname:         brokerConfig.ServedBindingHostname,
+		Host:             brokerConfig.ServedBindingHostname,
 		Port:             brokerConfig.ServedBindingPort,
 		Name:             databaseName,
 		Username:         username,
