@@ -73,9 +73,9 @@ Setup you GOPATH env variable
 
 ```sh
 go get github.com/tools/godep
-go get github.com/hpcloud/cf-mssql-broker
+go get github.com/cloudfoundry-incubator/cf-mssql-broker
 
-cd $GOPATH/src/github.com/hpcloud/cf-mssql-broker # cd $env:GOPATH/src/github.com/hpcloud/cf-mssql-broker
+cd $GOPATH/src/github.com/cloudfoundry-incubator/cf-mssql-broker # cd $env:GOPATH/src/github.com/cloudfoundry-incubator/cf-mssql-broker
 
 godep restore
 go build
@@ -143,7 +143,7 @@ cf enable-service-access mssql-dev
 ```
 ## Binding credentials exmaple
 
-VCAP_SERVICES env variable for a CF application with a mssql service binding will contin the crednetials to the SQL Server. The folowing [credential fields](https://github.com/hpcloud/cf-mssql-broker/blob/master/mssql_binding_credentials.go) will be used:
+VCAP_SERVICES env variable for a CF application with a mssql service binding will contin the crednetials to the SQL Server. The folowing [credential fields](https://github.com/cloudfoundry-incubator/cf-mssql-broker/blob/master/mssql_binding_credentials.go) will be used:
  * "host" - IP address or host of the SQL Server
  * "port" - The listening TCP port number
  * "name" - Database name
