@@ -9,6 +9,7 @@ import (
 	"runtime"
 
 	"github.com/cloudfoundry-incubator/cf-mssql-broker/config"
+	"github.com/cloudfoundry-incubator/cf-mssql-broker/broker"
 	"github.com/cloudfoundry-incubator/cf-mssql-broker/provisioner"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/pivotal-golang/lager"
@@ -42,7 +43,6 @@ const (
 )
 
 var configFile = flag.String("config", "", "Location of the Mssql Service Broker config json file")
-var brokerConfig *config.Config
 
 var logger = lager.NewLogger("mssql-service-broker")
 var mssqlProv *provisioner.MssqlProvisioner
@@ -84,7 +84,7 @@ func runMain(writer io.Writer) {
 		flag.Parse()
 	}
 	var err error
-	brokerConfig, err = config.LoadFromFile(*configFile)
+	brokerConfig, err := config.LoadFromFile(*configFile)
 
 	if err != nil {
 		panic(fmt.Errorf("configuration load error from file %s. Err: %s", *configFile, err))
@@ -99,9 +99,9 @@ func runMain(writer io.Writer) {
 	// set default sql driver if it is not set based on the OS
 	if _, ok := mssqlPars["driver"]; !ok && brokerConfig.BrokerGoSqlDriver == "odbc" {
 		if runtime.GOOS != "windows" {
-			mssqlPars["driver"] = "freetds"
+			mssqlPars["driver"] = "FreeTDS"
 		} else {
-			mssqlPars["driver"] = "sql server"
+			mssqlPars["driver"] = "{SQL Server Native Client 11.0}"
 		}
 	}
 
@@ -111,7 +111,7 @@ func runMain(writer io.Writer) {
 		logger.Fatal("error-initializing-provisioner", err)
 	}
 
-	serviceBroker := &mssqlServiceBroker{}
+	serviceBroker := broker.NewMssqlServiceBroker(logger, brokerConfig, mssqlProv)
 
 	brokerAPI := brokerapi.New(serviceBroker, logger, brokerConfig.Crednetials)
 	http.Handle("/", brokerAPI)
