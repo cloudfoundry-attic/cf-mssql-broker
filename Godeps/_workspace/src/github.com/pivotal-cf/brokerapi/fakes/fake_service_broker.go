@@ -3,13 +3,14 @@ package fakes
 import "github.com/pivotal-cf/brokerapi"
 
 type FakeServiceBroker struct {
-	ServiceDetails brokerapi.ServiceDetails
+	ProvisionDetails brokerapi.ProvisionDetails
 
 	ProvisionedInstanceIDs   []string
 	DeprovisionedInstanceIDs []string
 
-	BoundInstanceIDs []string
-	BoundBindingIDs  []string
+	BoundInstanceIDs    []string
+	BoundBindingIDs     []string
+	BoundBindingDetails brokerapi.BindDetails
 
 	InstanceLimit int
 
@@ -61,7 +62,7 @@ func (fakeBroker *FakeServiceBroker) Services() []brokerapi.Service {
 	}
 }
 
-func (fakeBroker *FakeServiceBroker) Provision(instanceID string, serviceDetails brokerapi.ServiceDetails) error {
+func (fakeBroker *FakeServiceBroker) Provision(instanceID string, details brokerapi.ProvisionDetails) error {
 	fakeBroker.BrokerCalled = true
 
 	if fakeBroker.ProvisionError != nil {
@@ -76,7 +77,7 @@ func (fakeBroker *FakeServiceBroker) Provision(instanceID string, serviceDetails
 		return brokerapi.ErrInstanceAlreadyExists
 	}
 
-	fakeBroker.ServiceDetails = serviceDetails
+	fakeBroker.ProvisionDetails = details
 	fakeBroker.ProvisionedInstanceIDs = append(fakeBroker.ProvisionedInstanceIDs, instanceID)
 	return nil
 }
@@ -96,12 +97,14 @@ func (fakeBroker *FakeServiceBroker) Deprovision(instanceID string) error {
 	return brokerapi.ErrInstanceDoesNotExist
 }
 
-func (fakeBroker *FakeServiceBroker) Bind(instanceID, bindingID string) (interface{}, error) {
+func (fakeBroker *FakeServiceBroker) Bind(instanceID, bindingID string, details brokerapi.BindDetails) (interface{}, error) {
 	fakeBroker.BrokerCalled = true
 
 	if fakeBroker.BindError != nil {
 		return nil, fakeBroker.BindError
 	}
+
+	fakeBroker.BoundBindingDetails = details
 
 	fakeBroker.BoundInstanceIDs = append(fakeBroker.BoundInstanceIDs, instanceID)
 	fakeBroker.BoundBindingIDs = append(fakeBroker.BoundBindingIDs, bindingID)

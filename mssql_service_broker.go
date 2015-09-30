@@ -37,7 +37,7 @@ func (*mssqlServiceBroker) Services() []brokerapi.Service {
 	return brokerConfig.ServiceCatalog
 }
 
-func (*mssqlServiceBroker) Provision(instanceID string, serviceDetails brokerapi.ServiceDetails) error {
+func (*mssqlServiceBroker) Provision(instanceID string, serviceDetails brokerapi.ProvisionDetails) error {
 	// Provision a new instance here
 	logger.Info("provision-called", lager.Data{"instanceId": instanceID, "serviceDetails": serviceDetails})
 
@@ -83,11 +83,11 @@ func (*mssqlServiceBroker) Deprovision(instanceID string) error {
 	return nil
 }
 
-func (*mssqlServiceBroker) Bind(instanceID, bindingID string) (interface{}, error) {
+func (*mssqlServiceBroker) Bind(instanceID, bindingID string, bindDetails brokerapi.BindDetails) (interface{}, error) {
 	// Bind to instances here
 	// Return credentials which will be marshalled to JSON
 
-	logger.Info("bind-called", lager.Data{"instanceId": instanceID, "bindingId": bindingID})
+	logger.Info("bind-called", lager.Data{"instanceId": instanceID, "bindingId": bindingID, "bindDetails": bindDetails})
 
 	databaseName := brokerConfig.DbIdentifierPrefix + instanceID
 	username := databaseName + "-" + bindingID

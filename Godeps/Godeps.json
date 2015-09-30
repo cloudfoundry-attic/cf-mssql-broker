@@ -1,57 +1,56 @@
 {
 	"ImportPath": "github.com/cloudfoundry-incubator/cf-mssql-broker",
-	"GoVersion": "go1.4.2",
+	"GoVersion": "go1.4.3",
 	"Packages": [
 		"./..."
 	],
 	"Deps": [
 		{
-			"ImportPath": "code.google.com/p/odbc",
-			"Comment": "null-45",
-			"Rev": "6c29f5e00db9ba7212d3f3d6932ad3c417271eb8"
+			"ImportPath": "github.com/alexbrainman/odbc",
+			"Rev": "cdf3442a53f75c7b87c8047325aa3e04114cf274"
 		},
 		{
 			"ImportPath": "github.com/denisenkom/go-mssqldb",
-			"Rev": "3fc47c72c5377f66a4bb00da4f56bc91b8fe73cb"
+			"Rev": "f6e253f56773336c1ae060de1f9238e2f9cd8cf2"
 		},
 		{
 			"ImportPath": "github.com/gorilla/context",
-			"Rev": "215affda49addc4c8ef7e2534915df2c8c35c6cd"
+			"Rev": "1c83b3eabd45b6d76072b66b746c20815fb2872d"
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Rev": "94903de8c98a68d8b4483c529b26a5d146e386a2"
+			"Rev": "49c024275504f0341e5a9971eb7ba7fa3dc7af40"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
-			"Comment": "v1.2.0-beta-9-gfbb6632",
-			"Rev": "fbb663242655b700c623e9629d7781db98957501"
+			"Comment": "v1.2.0-14-g1b59c57",
+			"Rev": "1b59c57df76ede42c08590546916e6a18685857d"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/format",
-			"Comment": "v1.0-33-ge7b2cd9",
-			"Rev": "e7b2cd96b5633fbc5f0c221159a5c1e85323f770"
+			"Comment": "v1.0-57-g52a4c33",
+			"Rev": "52a4c3399a2cf61ef1d0babd6591b8b3461e749d"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/gbytes",
-			"Comment": "v1.0-33-ge7b2cd9",
-			"Rev": "e7b2cd96b5633fbc5f0c221159a5c1e85323f770"
+			"Comment": "v1.0-57-g52a4c33",
+			"Rev": "52a4c3399a2cf61ef1d0babd6591b8b3461e749d"
 		},
 		{
 			"ImportPath": "github.com/pivotal-cf/brokerapi",
-			"Rev": "15b0ee33a737ef05859cfaa916b04a3dff10d66e"
+			"Rev": "9f368e578ab699e755c31980dc86d9fcd6848919"
 		},
 		{
 			"ImportPath": "github.com/pivotal-golang/lager",
-			"Rev": "c88fa6d6c4d2f8a21a4599785211e41777750d34"
+			"Rev": "be52ae622d25728f17aac7330e4565201c19155c"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/md4",
-			"Rev": "4d48e5fa3d62b5e6e71260571bf76c767198ca02"
+			"Rev": "0c93e1ff9f91f0c63bf17b123de503d023434fdd"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/windows",
-			"Rev": "58e109635f5d754f4b3a8a0172db65a52fcab866"
+			"Rev": "342d6a85aa15bcd2ec54803cdffe90d52b6f35a7"
 		}
 	]
 }
