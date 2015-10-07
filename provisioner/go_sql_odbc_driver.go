@@ -1,4 +1,4 @@
-// +build !cloudfoundry,!heroku,!exclude-odbc-driver
+// +build !cloudfoundry,!heroku,!exclude_odbc_driver
 
 // ODBC driver has a dependency unixodbc on platform other then windows
 // Disable by default the odbc driver for cloudfoundry

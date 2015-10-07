@@ -3,10 +3,10 @@ package broker
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"github.com/pivotal-cf/brokerapi"
-	"github.com/pivotal-golang/lager"
 	"github.com/cloudfoundry-incubator/cf-mssql-broker/config"
 	"github.com/cloudfoundry-incubator/cf-mssql-broker/provisioner"
+	"github.com/pivotal-cf/brokerapi"
+	"github.com/pivotal-golang/lager"
 )
 
 // This is a suffix added to the password that will prevent the default
@@ -30,16 +30,16 @@ func secureRandomString(bytesOfEntpry int) (string, error) {
 	return base64.URLEncoding.EncodeToString(rb), nil
 }
 
-type MssqlServiceBroker struct{
+type MssqlServiceBroker struct {
 	brokerConfig *config.Config
 	mssqlProv    *provisioner.MssqlProvisioner
 	logger       lager.Logger
 }
 
-func NewMssqlServiceBroker(logger lager.Logger, config *config.Config, provisioner *provisioner.MssqlProvisioner) *MssqlServiceBroker{
+func NewMssqlServiceBroker(logger lager.Logger, config *config.Config, provisioner *provisioner.MssqlProvisioner) *MssqlServiceBroker {
 	return &MssqlServiceBroker{
 		brokerConfig: config,
-		mssqlProv: 	  provisioner,
+		mssqlProv:    provisioner,
 		logger:       logger,
 	}
 }
@@ -105,12 +105,12 @@ func (b *MssqlServiceBroker) Bind(instanceID, bindingID string, bindDetails brok
 
 	databaseName := b.brokerConfig.DbIdentifierPrefix + instanceID
 	username := databaseName + "-" + bindingID
-	
+
 	randomString, err := secureRandomString(32)
 	if err != nil {
 		b.logger.Fatal("rng-failure", err)
 	}
-	
+
 	password := randomString + happySqlPasswordPolicySuffix
 
 	exist, err := b.mssqlProv.IsDatabaseCreated(databaseName)

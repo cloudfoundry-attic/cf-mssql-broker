@@ -1,4 +1,4 @@
-// +build !exclude-mssql-driver
+// +build !exclude_mssql_driver
 
 // This driver is a pure go implementation and doesn't have any external dependencies
 
