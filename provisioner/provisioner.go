@@ -69,15 +69,15 @@ func NewMssqlProvisioner(logger lager.Logger, goSqlDriver string, connectionPara
 func (provisioner *MssqlProvisioner) Init() error {
 	var err error = nil
 	connString := buildConnectionString(provisioner.connectionParams)
+
 	provisioner.dbClient, err = sql.Open(provisioner.goSqlDriver, connString)
+	if err != nil {
+		return err
+	}
 
 	// Set idle connections to 0 to prevent keeping open databases
 	// Enabling idle connections will create problems with ODBC driver when deleting DBs
 	provisioner.dbClient.SetMaxIdleConns(0)
-
-	if err != nil {
-		return err
-	}
 
 	err = provisioner.dbClient.Ping()
 	if err != nil {
