@@ -47,7 +47,7 @@ loop:
 
 func main() {
 	var logDir = ""
- 	flag.StringVar(&logDir, "logDir","", "The directory where the logs will be stored")
+	flag.StringVar(&logDir, "logDir", "", "The directory where the logs will be stored")
 	var serviceName = flag.String("serviceName", "mssql_broker", "The name of the service as installed in Windows SCM")
 
 	if !flag.Parsed() {
