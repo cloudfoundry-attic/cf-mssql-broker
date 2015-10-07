@@ -19,7 +19,7 @@
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Rev": "49c024275504f0341e5a9971eb7ba7fa3dc7af40"
+			"Rev": "ad4d7a5882b961e07e2626045eb995c022ac6664"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
@@ -28,13 +28,13 @@
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/format",
-			"Comment": "v1.0-57-g52a4c33",
-			"Rev": "52a4c3399a2cf61ef1d0babd6591b8b3461e749d"
+			"Comment": "v1.0-71-g2152b45",
+			"Rev": "2152b45fa28a361beba9aab0885972323a444e28"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega/gbytes",
-			"Comment": "v1.0-57-g52a4c33",
-			"Rev": "52a4c3399a2cf61ef1d0babd6591b8b3461e749d"
+			"Comment": "v1.0-71-g2152b45",
+			"Rev": "2152b45fa28a361beba9aab0885972323a444e28"
 		},
 		{
 			"ImportPath": "github.com/pivotal-cf/brokerapi",
@@ -46,7 +46,7 @@
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/md4",
-			"Rev": "0c93e1ff9f91f0c63bf17b123de503d023434fdd"
+			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/windows",
