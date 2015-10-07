@@ -111,13 +111,13 @@ curl http://username:password@localhost:3000/v2/service_instances/instance1 -d '
 ### Bind Service Instance
 
 ```sh
-curl http://username:password@localhost:3000/v2/service_instances/instance1/service_bindings/binding1 -d '{  "plan_id":        "plan-guid-here",  "service_id":     "service-guid-here",  "app_guid":       "app-guid-here"}' -X PUT -H "X-Broker-API-Version: 2.4" -H "Content-Type: application/json"
+curl http://username:password@localhost:3000/v2/service_instances/instance1/service_bindings/binding1 -d '{  "plan_id":        "fb740fd7-2029-467a-9256-63ecd882f11c",  "service_id":     "b6844738-382b-4a9e-9f80-2ff5049d512f",  "app_guid":       "app-guid-here"}' -X PUT -H "X-Broker-API-Version: 2.4" -H "Content-Type: application/json"
 ```
 
 ### Unbind Service Instance
 
 ```sh
-curl 'http://username:password@localhost:3000/v2/service_instances/instance1/service_bindings/binding1?service_id=service-id-here&plan_id=plan-id-here' -X DELETE -H "X-Broker-API-Version: 2.4"
+curl 'http://username:password@localhost:3000/v2/service_instances/instance1/service_bindings/binding1?service_id=b6844738-382b-4a9e-9f80-2ff5049d512f&plan_id=fb740fd7-2029-467a-9256-63ecd882f11c' -X DELETE -H "X-Broker-API-Version: 2.4"
 ```
 
 ### Deprovision Instance
