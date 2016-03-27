@@ -1,14 +1,10 @@
 {
 	"ImportPath": "github.com/cloudfoundry-incubator/cf-mssql-broker",
-	"GoVersion": "go1.4.2",
-	"Packages": [
-		"./..."
-	],
+	"GoVersion": "go1.6",
 	"Deps": [
 		{
-			"ImportPath": "code.google.com/p/odbc",
-			"Comment": "null-45",
-			"Rev": "6c29f5e00db9ba7212d3f3d6932ad3c417271eb8"
+			"ImportPath": "github.com/alexbrainman/odbc",
+			"Rev": "2fd1af78465e39a1d023f985345e91f1d6fedecf"
 		},
 		{
 			"ImportPath": "github.com/denisenkom/go-mssqldb",
@@ -23,21 +19,6 @@
 			"Rev": "94903de8c98a68d8b4483c529b26a5d146e386a2"
 		},
 		{
-			"ImportPath": "github.com/onsi/ginkgo",
-			"Comment": "v1.2.0-beta-9-gfbb6632",
-			"Rev": "fbb663242655b700c623e9629d7781db98957501"
-		},
-		{
-			"ImportPath": "github.com/onsi/gomega/format",
-			"Comment": "v1.0-33-ge7b2cd9",
-			"Rev": "e7b2cd96b5633fbc5f0c221159a5c1e85323f770"
-		},
-		{
-			"ImportPath": "github.com/onsi/gomega/gbytes",
-			"Comment": "v1.0-33-ge7b2cd9",
-			"Rev": "e7b2cd96b5633fbc5f0c221159a5c1e85323f770"
-		},
-		{
 			"ImportPath": "github.com/pivotal-cf/brokerapi",
 			"Rev": "15b0ee33a737ef05859cfaa916b04a3dff10d66e"
 		},
@@ -48,10 +29,6 @@
 		{
 			"ImportPath": "golang.org/x/crypto/md4",
 			"Rev": "4d48e5fa3d62b5e6e71260571bf76c767198ca02"
-		},
-		{
-			"ImportPath": "golang.org/x/sys/windows",
-			"Rev": "58e109635f5d754f4b3a8a0172db65a52fcab866"
 		}
 	]
 }
