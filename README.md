@@ -149,7 +149,7 @@ nssm set  cf-mssql-broker  AppStderr $logPath
 nssm start cf-mssql-broker
 ```
 
-## Integrating into a Cloud Foundry deployemnt
+## Integrating into a Cloud Foundry deployment
 
 You need admin access to a Cloud Foundry deployment to add a new service broker.
 
