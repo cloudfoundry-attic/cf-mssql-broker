@@ -48,7 +48,7 @@ The `servedMssqlBindingHostname` and `servedMssqlBindingPort` properties need to
 
 `logLevel` will set the logging level. Accepted levels: "debug", "info", "error", and "fatal".
 
-The `brokerGoSqlDriver` and `brokerMssqlConnection` are settings that the broker uses to connect to the mssql instance. `brokerGoSqlDriver` can be "odbc" (recommended https://code.google.com/p/odbc/) or "mssql" (experimental https://github.com/denisenkom/go-mssqldb). `brokerMssqlConnection` is a key-value JSON object that is 
+The `brokerGoSqlDriver` and `brokerMssqlConnection` are settings that the broker uses to connect to the mssql instance. `brokerGoSqlDriver` can be "odbc" (recommended https://github.com/alexbrainman/odbc/) or "mssql" (experimental https://github.com/denisenkom/go-mssqldb). `brokerMssqlConnection` is a key-value JSON object that is 
 converted into a connection string (e.g. {"server":"localhost","port":1433} is converted to  "server=localhost;port=1433") consumed by ODBC or mssql go library.
 Example for a local trusted `brokerMssqlConnection` with ODBC driver:
 	{
@@ -94,8 +94,8 @@ go get -u -v go get github.com/cloudfoundry-incubator/cf-mssql-broker/...
 godep update ...
 
 # Or to update a specific package (e.g. odbc package):
-go get -u -v code.google.com/p/odbc
-godep update code.google.com/p/odbc
+go get -u -v github.com/alexbrainman/odbc
+godep update github.com/alexbrainman/odbc
 
 git add Godeps/*
 ```
